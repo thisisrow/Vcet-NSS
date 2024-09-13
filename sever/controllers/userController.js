@@ -145,7 +145,13 @@ const loginController = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role, // Include role in response
+        role: user.role,
+        position: user.position, // Add position to response
+        year: user.year, // Add year to response
+        team: user.team, // Add team to response
+        attendance: user.attendance, // Add attendance to response
+        hours: user.hours, // Add hours to response
+        eventsAttended: user.eventsAttended, // Include role in response
       },
     });
   } catch (error) {

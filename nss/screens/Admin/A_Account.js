@@ -12,10 +12,11 @@ import {
   Platform,
 } from "react-native";
 import React, { useContext, useState } from "react";
-import { AuthContext } from "../context/authContext";
-import FooterMenu from "../components/Menus/FooterMenu";
+import { AuthContext } from "../../context/authContext";
 import axios from "axios";
-const Account = () => {
+import A_FooterMenu from "../../components/Menus/A_FooterMenu";
+
+const A_Account = () => {
   //global state
   const [state, setState] = useContext(AuthContext);
   const { user, token } = state;
@@ -160,57 +161,56 @@ const Account = () => {
           </Text>
         </TouchableOpacity>
       </View>
-      <FooterMenu />
+      <A_FooterMenu></A_FooterMenu>
     </View>
   );
 };
-
-const { width, height } = Dimensions.get("window"); // Get device dimensions
-
+const { width, height } = Dimensions.get("window");
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    margin: width * 0.01, 
+    margin: width * 0.01,
     justifyContent: "space-between",
-    marginTop: height * 0.01, 
+    marginTop: height * 0.01,
   },
   warningtext: {
     color: "red",
-    fontSize: width * 0.035, 
+    fontSize: width * 0.035,
     textAlign: "center",
   },
   inputContainer: {
-    marginTop: height * 0.02, 
+    marginTop: height * 0.02,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
   },
   inputText: {
     fontWeight: "bold",
-    width: width * 0.20, 
+    width: width * 0.2,
     color: "#000000",
   },
   inputBox: {
-    width: width * 0.6, 
+    width: width * 0.6,
     backgroundColor: "#ffffff",
-    marginLeft: width * 0.025, 
-    fontSize: width * 0.04, 
-    paddingLeft: width * 0.04, 
+    marginLeft: width * 0.025,
+    fontSize: width * 0.04,
+    paddingLeft: width * 0.04,
     borderRadius: 5,
   },
   updateBtn: {
     backgroundColor: "black",
     color: "white",
-    height: height * 0.06, 
-    width: width * 0.7, 
+    height: height * 0.06,
+    width: width * 0.7,
     borderRadius: 10,
-    marginTop: height * 0.04, 
+    marginTop: height * 0.04,
     alignItems: "center",
     justifyContent: "center",
   },
   updateBtnText: {
     color: "#ffffff",
-    fontSize: width * 0.04, 
+    fontSize: width * 0.04,
   },
 });
-export default Account;
+
+export default A_Account;

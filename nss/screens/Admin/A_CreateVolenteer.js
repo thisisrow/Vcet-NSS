@@ -1,17 +1,16 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
-import A_FooterMenu from '../../components/Menus/A_FooterMenu';
 
-const A_Home = () => {
+
+const A_CreateVolenteer = () => {
   return (
     <View style={styles.container}>
-      <Text>A_Home</Text>
-      <A_FooterMenu></A_FooterMenu>
+      <Text>A_CreateVolenteer</Text>
     </View>
-  )
+  );
 }
 
-export default A_Home
+
 
 const styles = StyleSheet.create({
   container: {
@@ -20,3 +19,4 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
 });
+export default A_CreateVolenteer

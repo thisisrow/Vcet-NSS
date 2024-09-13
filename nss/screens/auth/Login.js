@@ -25,13 +25,28 @@ const Login = ({ navigation }) => {
         return;
       }
       const { data } = await axios.post("/auth/login", { email, password });
-      setState(data);
-      await AsyncStorage.setItem("@auth", JSON.stringify(data));
-      alert(data && data.message);
-      navigation.navigate("Home"); // Navigate to Volunteer Home Screen
+
+      if (data.success) {
+        setState({
+          user: data.user,
+          token: data.token,
+          role: data.user.role, // Make sure role is sent from the backend
+        });
+        await AsyncStorage.setItem("@auth", JSON.stringify(data));
+        Alert.alert(data.message);
+        if (data.user.role === "Admin") {
+          navigation.navigate("A_Home");
+        } else {
+          navigation.navigate("Home");
+        }
+
+      } else {
+        Alert.alert(data.message || "Login failed");
+      }
+
       setLoading(false);
     } catch (error) {
-      alert(error.response.data.message);
+      Alert.alert(error.response.data.message || "An error occurred");
       setLoading(false);
       console.log(error);
     }
