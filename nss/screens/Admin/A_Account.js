@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import React, { useContext, useState } from "react";
 import { AuthContext } from "../../context/authContext";
+import * as ImagePicker from 'expo-image-picker';
 import axios from "axios";
 import A_FooterMenu from "../../components/Menus/A_FooterMenu";
 

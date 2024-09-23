@@ -98,6 +98,7 @@ const PostCard = ({ posts, myPostScreen }) => {
               {" Updated "}
               {moment(post?.updatedAt).format("DD:MM:YYYY")}
             </Text>
+            <Text>{JSON.stringify({})}</Text>
           </View>
         </View>
       ))}

@@ -26,7 +26,7 @@ const PostProvider = ({ children }) => {
   useEffect(() => {
     getAllPosts();
   }, []);
-
+  
   return (
     <PostContext.Provider value={[posts, setPosts, getAllPosts]}>
       {children}

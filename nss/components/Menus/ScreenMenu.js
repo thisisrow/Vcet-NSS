@@ -1,10 +1,10 @@
 import { View, Text } from "react-native";
 import React, { useContext } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { AuthContext } from "../../context/authContext";
 import Home from "../../screens/Home";
 import Register from "../../screens/auth/Register";
 import Login from "../../screens/auth/Login";
-import { AuthContext } from "../../context/authContext";
 import HeaderMenu from "./HeaderMenu";
 import Post from "../../screens/Post";
 import About from "../../screens/About";
@@ -42,8 +42,7 @@ const ScreenMenu = () => {
                   headerRight: () => <HeaderMenu />,
                 }}
               />
-             
-              
+
               <Stack.Screen
                 name="A_Event"
                 component={A_Event}
@@ -60,7 +59,7 @@ const ScreenMenu = () => {
                   headerRight: () => <HeaderMenu />,
                 }}
               />
-              
+
               <Stack.Screen
                 name="A_allVolenteer"
                 component={A_allVolenteer}
@@ -86,7 +85,7 @@ const ScreenMenu = () => {
                   headerRight: () => <HeaderMenu />,
                 }}
               />
-               <Stack.Screen
+              <Stack.Screen
                 name="A_Account"
                 component={A_Account}
                 options={{
@@ -103,6 +102,14 @@ const ScreenMenu = () => {
                 component={Home}
                 options={{
                   title: "Welcome",
+                  headerRight: () => <HeaderMenu />,
+                }}
+              />
+              <Stack.Screen
+                name="Events"
+                component={AdminPost}
+                options={{
+                  title: "Admin Post",
                   headerRight: () => <HeaderMenu />,
                 }}
               />

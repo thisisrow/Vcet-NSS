@@ -18,6 +18,14 @@ const FooterMenu = () => {
         />
         <Text>Home</Text>
       </TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate("Events")}>
+        <FontAwesome5
+          name="sticky-note"
+          style={styles.iconStyle}
+          color={route.name == "Events" && "orange"}
+        />
+        <Text>Events</Text>
+      </TouchableOpacity>
       <TouchableOpacity onPress={() => navigation.navigate("Post")}>
         <FontAwesome5
           name="plus-square"

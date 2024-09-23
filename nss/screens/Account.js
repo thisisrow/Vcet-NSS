@@ -11,9 +11,12 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import React, { useContext, useState } from "react";
+import React, { useContext, useState,useEffect } from "react";
 import { AuthContext } from "../context/authContext";
 import FooterMenu from "../components/Menus/FooterMenu";
+import * as ImagePicker from "expo-image-picker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { differenceInDays } from "date-fns";
 import axios from "axios";
 const Account = () => {
   //global state
@@ -52,15 +55,109 @@ const Account = () => {
       console.log(error);
     }
   };
+
+  // Local state for image URI
+  const [imageUri, setImageUri] = useState(null);
+
+  // Load stored image from AsyncStorage and check the date
+  useEffect(() => {
+    const loadImage = async () => {
+      try {
+        const storedImageUri = await AsyncStorage.getItem("@profile_image");
+        const storedImageDate = await AsyncStorage.getItem(
+          "@profile_image_date"
+        ); // Get the stored date
+
+        if (storedImageUri && storedImageDate) {
+          const daysDifference = differenceInDays(
+            new Date(),
+            new Date(storedImageDate)
+          );
+          if (daysDifference > 5) {
+            // If the image is older than 5 days, delete it
+            await AsyncStorage.multiRemove([
+              "@profile_image",
+              "@profile_image_date",
+            ]);
+            setImageUri(null);
+            console.log("Image expired and removed after 5 days");
+          } else {
+            setImageUri(storedImageUri); // Set image if it's within 5 days
+            console.log("Loaded image from storage:", storedImageUri);
+          }
+        }
+      } catch (error) {
+        console.error("Error loading image from AsyncStorage", error);
+      }
+    };
+
+    loadImage();
+  }, []);
+
+  // Handle image picking
+  const pickImage = async () => {
+    try {
+      const permissionResult =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permissionResult.granted) {
+        alert("Permission to access media library is required!");
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1], // Square image
+        quality: 1,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const pickedImageUri = result.assets[0].uri;
+        const currentDate = new Date().toISOString(); // Save current date
+
+        setImageUri(pickedImageUri);
+
+        // Save both the image URI and the current date to AsyncStorage
+        await AsyncStorage.multiSet([
+          ["@profile_image", pickedImageUri],
+          ["@profile_image_date", currentDate],
+        ]);
+
+        console.log(
+          "Image and date saved to AsyncStorage:",
+          pickedImageUri,
+          currentDate
+        );
+      } else {
+        // If no image is picked, clear the image and date from AsyncStorage
+        setImageUri(null);
+        await AsyncStorage.multiRemove([
+          "@profile_image",
+          "@profile_image_date",
+        ]);
+        console.log("Image removed from AsyncStorage");
+      }
+    } catch (error) {
+      console.error("Error picking image:", error);
+    }
+  };
+
+  console.log(imageUri);
+
   return (
     <View style={styles.container}>
       <View style={{ alignItems: "center" }}>
-        <Image
-          source={{
-            uri: "https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png",
-          }}
-          style={{ height: 200, width: 200, borderRadius: 100 }}
-        />
+        <TouchableOpacity onPress={pickImage}>
+          <Image
+            source={{
+              uri:
+                imageUri ||
+                "https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png",
+            }}
+            style={{ height: 200, width: 200, borderRadius: 100 }}
+          />
+        </TouchableOpacity>
+        <Text style={{ color: "blue" }}>Tap to change profile picture</Text>
       </View>
       <Text style={styles.warningtext}>
         Currently You Can Only Update Your Name And Password*

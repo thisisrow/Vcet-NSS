@@ -21,8 +21,9 @@ app.use(morgan("dev"));
 
 //ROUTES
 app.use("/api/v1/auth", require("./routes/userRoutes"));
-// app.use("/api/v1/post", require("./routes/postRoutes"));
-
+app.use("/api/v1/post", require("./routes/postRoutes"));
+app.use("/api/v1/events", require("./routes/eventRoutes"));
+app.use("/api/v1/attendance", require("./routes/attendanceRoutes")  );
 //home
 // app.get("/", (req, res) => {
 //   res.status(200).send({
