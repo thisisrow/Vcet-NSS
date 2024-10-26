@@ -93,12 +93,10 @@ const PostCard = ({ posts, myPostScreen }) => {
               {moment(post?.createdAt).format("DD:MM:YYYY")}
             </Text>
             <Text>
-              {" "}
               <FontAwesome5 name="clock" color={"orange"} />
               {" Updated "}
               {moment(post?.updatedAt).format("DD:MM:YYYY")}
             </Text>
-            <Text>{JSON.stringify({})}</Text>
           </View>
         </View>
       ))}

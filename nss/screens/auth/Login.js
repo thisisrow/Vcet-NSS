@@ -76,15 +76,6 @@ const Login = ({ navigation }) => {
         loading={loading}
         handleSubmit={handleSubmit}
       />
-      <Text style={styles.linkText}>
-        Not a user? Please{" "}
-        <Text
-          style={styles.link}
-          onPress={() => navigation.navigate("Register")}
-        >
-          REGISTER
-        </Text>
-      </Text>
     </View>
   );
 };

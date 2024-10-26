@@ -46,6 +46,8 @@ const getAllEventsController = async (req, res) => {
   }
 };
 
+// Controller for fetching today's events
+
 module.exports = {
   createEventController,
   getAllEventsController,

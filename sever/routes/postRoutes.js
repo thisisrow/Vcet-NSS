@@ -15,7 +15,7 @@ const router = express.Router();
 router.post("/create-post", requireSingIn, createPostController);
 
 //GET ALL POSTs
-router.get("/get-all-post", getAllPostsContoller);
+router.get("/get-all-post",getAllPostsContoller);
 
 //GET USER POSTs
 router.get("/get-user-post", requireSingIn, getUserPostsController);

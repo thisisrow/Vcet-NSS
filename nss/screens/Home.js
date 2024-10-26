@@ -5,39 +5,36 @@ import {
   ScrollView,
   RefreshControl,
 } from "react-native";
-import React, { useContext, useState, useCallback, useEffect } from "react";
+import React, { useContext, useState, useCallback } from "react";
 import FooterMenu from "../components/Menus/FooterMenu";
 import { PostContext } from "../context/postContext";
 import PostCard from "../components/PostCard";
 
 const Home = () => {
-  //global state
-
-  const [posts, getAllPosts] = useContext(PostContext);
+  // Global state
+  const [posts, , getAllPosts] = useContext(PostContext); // Ensure you're destructuring correctly
   const [refreshing, setRefreshing] = useState(false);
-  useEffect(() => {}, [getAllPosts]);
-  //refresh controll
-  const onRefresh = useCallback(() => {
+
+  // Refresh control
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    getAllPosts;
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 2000);
-  }, []);
+    await getAllPosts(); // Call the function to get posts
+    setRefreshing(false);
+  }, [getAllPosts]); // Include getAllPosts in the dependency array
+
   return (
-    
-      <View style={styles.container}>
-        <ScrollView
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-        >
-          <PostCard posts={posts} />
-        </ScrollView>
-        <View style={{ backgroundColor: "#ffffff" }}>
-          <FooterMenu />
-        </View>
+    <View style={styles.container}>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        <PostCard posts={posts} />
+      </ScrollView>
+      <View style={{ backgroundColor: "#ffffff" }}>
+        <FooterMenu />
       </View>
+    </View>
   );
 };
 

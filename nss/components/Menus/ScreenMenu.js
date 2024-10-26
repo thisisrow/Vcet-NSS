@@ -3,7 +3,6 @@ import React, { useContext } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { AuthContext } from "../../context/authContext";
 import Home from "../../screens/Home";
-import Register from "../../screens/auth/Register";
 import Login from "../../screens/auth/Login";
 import HeaderMenu from "./HeaderMenu";
 import Post from "../../screens/Post";
@@ -161,11 +160,6 @@ const ScreenMenu = () => {
           <Stack.Screen
             name="Login"
             component={Login}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="Register"
-            component={Register}
             options={{ headerShown: false }}
           />
         </>

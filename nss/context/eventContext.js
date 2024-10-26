@@ -16,6 +16,7 @@ const EventProvider = ({ children }) => {
       const { data } = await axios.get("/events/all");
       setEvents(data?.events || []);
       setLoading(false);
+     
     } catch (error) {
       setLoading(false);
       console.error("Error fetching events:", error);

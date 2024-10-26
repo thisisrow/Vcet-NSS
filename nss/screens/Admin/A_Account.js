@@ -71,7 +71,7 @@ const A_Account = () => {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.container}
       >
-        <ScrollView>
+          <ScrollView>
           <View style={styles.inputContainer}>
             <Text style={styles.inputText}>Name</Text>
             <TextInput

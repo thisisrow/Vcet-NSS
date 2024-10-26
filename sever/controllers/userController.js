@@ -12,7 +12,7 @@ const requireSingIn = jwt({
 //register
 const registerController = async (req, res) => {
   try {
-    const { name, email, password, year, team, position } = req.body;
+    const { name, email, password, year, team, position } = req.body;  //123456
 
     // Validation
     if (!name) {
@@ -57,7 +57,7 @@ const registerController = async (req, res) => {
     }
 
     // Hash password
-    const hashedPassword = await hashPassword(password);
+    const hashedPassword = await hashPassword(password); //12345 chgkxnhmgbvn,ghmbgh 
 
     // Set role and position with default values
     const userRole = "Volunteer"; // Default role as 'Volunteer'
@@ -116,7 +116,7 @@ const loginController = async (req, res) => {
     }
 
     // Match password
-    const match = await comparePassword(password, user.password);
+    const match = await comparePassword(password, user.password);  
     if (!match) {
       return res.status(500).send({
         success: false,
@@ -204,9 +204,32 @@ const updateUserController = async (req, res) => {
   }
 };
 
+// get all users controller
+const getAllUsersController = async (req, res) => {
+  try {
+    // Fetch all users from the database, excluding their passwords
+    const users = await userModel.find();
+    res.status(200).json({
+      success: true,
+      message: "All users fetched successfully",
+      users,
+    });
+  } catch (error) {
+    console.log("Error fetching users:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching users",
+      error: error.message, // More specific error message
+    });
+  }
+};
+
+
+
 module.exports = {
   requireSingIn,
   registerController,
   loginController,
   updateUserController,
+  getAllUsersController,
 };
