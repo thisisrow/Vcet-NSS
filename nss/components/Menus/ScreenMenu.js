@@ -6,6 +6,7 @@ import Home from "../../screens/Home";
 import Login from "../../screens/auth/Login";
 import HeaderMenu from "./HeaderMenu";
 import Post from "../../screens/Post";
+import UserAbout from "../../screens/auth/UserAbout";
 import About from "../../screens/About";
 import Account from "../../screens/Account";
 import Myposts from "../../screens/Myposts";
@@ -18,7 +19,6 @@ import A_ManageEvent from "../../screens/Admin/A_ManageEvent";
 import A_allVolenteer from "../../screens/Admin/A_allVolenteer";
 import A_CreateVolenteer from "../../screens/Admin/A_CreateVolenteer";
 
-
 const ScreenMenu = () => {
   const [state] = useContext(AuthContext);
   const authenticatedUser = state?.user && state?.token;
@@ -27,7 +27,7 @@ const ScreenMenu = () => {
   const Stack = createNativeStackNavigator();
 
   return (
-    <Stack.Navigator initialRouteName="Login">
+    <Stack.Navigator initialRouteName="UserAbout">
       {authenticatedUser ? (
         <>
           {userRole === "Admin" ? (
@@ -157,6 +157,11 @@ const ScreenMenu = () => {
         </>
       ) : (
         <>
+          <Stack.Screen
+            name="UserAbout"
+            component={UserAbout}
+            options={{ headerShown: false }}
+          />
           <Stack.Screen
             name="Login"
             component={Login}

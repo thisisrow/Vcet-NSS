@@ -30,10 +30,15 @@ const A_Event = () => {
         eventDetails
       );
       Alert.alert("Success", data.message);
+      refressh();
     } catch (error) {
       console.log(error);
       Alert.alert("Error", "Failed to create event");
     }
+  };
+
+  const refressh = () => {
+    setEventDetails({ eventName: "", description: "", date: "", duration: "" });
   };
   return (
     <View style={{ padding: 20 }}>

@@ -45,35 +45,31 @@ const A_Attendance = () => {
   };
 
   const handleSubmit = async () => {
-
-    // if (selectedVolunteers.length === 0) {
-    //   alert('Please select at least one volunteer.');
-    //   return;
-    // }
-  
-    // const todaysEvents = getTodayEvents();
-    // if (todaysEvents.length === 0) {
-    //   alert('No events scheduled for today.');
-    //   return;
-    // }
-  
-    // try {
-    //   console.log('Submitting attendance for:', selectedVolunteers); // Log selected volunteers
-    //   console.log('Today\'s Event:', todaysEvents[0]); // Log today's event details
-      
-    //   const eventToday = todaysEvents[0]; // Assuming only one event for today
-    //   const response = await axios.put('/present/mark-attendance', {
-    //     selectedVolunteers,
-    //     eventName: eventToday.eventName,
-    //     eventHours: eventToday.duration, // Assuming event's duration in hours is stored in eventToday
-    //   });
-  
-    //   console.log('Attendance marked successfully:', response.data); // Log successful response
-    //   alert('Attendance marked successfully!');
-    // } catch (error) {
-    //   console.error('Error marking attendance:', error); // Log the error for better debugging
-    //   alert('Failed to mark attendance.');
-    // }
+     if (selectedVolunteers.length === 0) {
+       alert('Please select at least one volunteer.');
+       return;
+     }
+     const todaysEvents = getTodayEvents();
+     if (todaysEvents.length === 0) {
+       alert('No events scheduled for today.');
+       return;
+     }
+     try {
+       console.log("Submitting attendance for:", selectedVolunteers); // Log selected volunteers
+       console.log("Today's Event:", todaysEvents[0]); //Log today's event details
+       const eventToday = todaysEvents[0]; //Assuming only one event for today
+       console.log("Today's name and duration:", todaysEvents.eventName,eventToday.duration); //Log today's event details
+       const response = await axios.put("/present/markattendance", {
+         selectedVolunteers,
+         eventName: eventToday.eventName,
+         eventHours: eventToday.duration, //Assuming event's duration in hours is stored in eventToday
+       });
+       console.log("Attendance marked successfully:", response.data); // Log successful response
+       alert("Attendance marked successfully!");
+     } catch (error) {
+       console.error('Error marking attendance:', error);  //Log the error for better debugging
+       alert('Failed to mark attendance.');
+     }
   };
   
   

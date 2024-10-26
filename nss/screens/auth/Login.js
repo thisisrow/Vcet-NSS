@@ -39,7 +39,6 @@ const Login = ({ navigation }) => {
         } else {
           navigation.navigate("Home");
         }
-
       } else {
         Alert.alert(data.message || "Login failed");
       }
@@ -69,6 +68,7 @@ const Login = ({ navigation }) => {
           autoComplete="password"
           value={password}
           setValue={setPassword}
+          keyboardType="number-pad"
         />
       </View>
       <SubmitButton

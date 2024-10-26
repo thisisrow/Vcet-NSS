@@ -5,7 +5,8 @@ const colors = require("colors");
 const morgan = require("morgan");
 const connectDB = require("./config/db");
 
-
+const User = require("./models/userModel"); // Import the User model
+const Event = require("./models/eventModel"); // Import the Event model
 
 //DOTENV
 dotenv.config();
@@ -25,7 +26,7 @@ app.use(morgan("dev"));
 app.use("/api/v1/auth", require("./routes/userRoutes"));
 app.use("/api/v1/post", require("./routes/postRoutes"));
 app.use("/api/v1/events", require("./routes/eventRoutes"));
-// app.use('/api/v1/present', require('./routes/attendanceRoutes'));
+app.use("/api/v1/present", require("./routes/attendanceRoutes"));
 
 
 //PORT
