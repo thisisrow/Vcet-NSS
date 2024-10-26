@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import React, { useContext, useState } from "react";
 import { AuthContext } from "../../context/authContext";
-import * as ImagePicker from 'expo-image-picker';
+import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
 import A_FooterMenu from "../../components/Menus/A_FooterMenu";
 
@@ -71,7 +71,7 @@ const A_Account = () => {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.container}
       >
-          <ScrollView>
+        <ScrollView>
           <View style={styles.inputContainer}>
             <Text style={styles.inputText}>Name</Text>
             <TextInput
@@ -80,14 +80,7 @@ const A_Account = () => {
               onChangeText={(text) => setName(text)}
             />
           </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputText}>Email</Text>
-            <TextInput
-              style={styles.inputBox}
-              value={state?.user.email}
-              editable={false}
-            />
-          </View>
+
           <View style={styles.inputContainer}>
             <Text style={styles.inputText}>Password</Text>
             <TextInput
@@ -97,61 +90,46 @@ const A_Account = () => {
               secureTextEntry={true}
             />
           </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputText}>Role</Text>
-            <TextInput
-              style={styles.inputBox}
-              value={state?.user.role}
-              editable={false}
-            />
+          <View style={styles.normal}>
+            <Text style={styles.normaltext}>Email</Text>
+            <Text style={styles.normalInText}>{state?.user.email}</Text>
           </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputText}>Position</Text>
-            <TextInput
-              style={styles.inputBox}
-              value={state?.user.position}
-              editable={false}
-            />
+          <View style={styles.normal}>
+            <Text style={styles.normaltext}>Role</Text>
+            <Text style={styles.normalInText}>{state?.user.role}</Text>
           </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputText}>Team</Text>
-            <TextInput
-              style={styles.inputBox}
-              value={state?.user.team}
-              editable={false}
-            />
+          <View style={styles.normal}>
+            <Text style={styles.normaltext}>Position</Text>
+            <Text style={styles.normalInText}>{state?.user.position}</Text>
           </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputText}>Year</Text>
-            <TextInput
-              style={styles.inputBox}
-              value={state?.user.year}
-              editable={false}
-            />
+          <View style={styles.normal}>
+            <Text style={styles.normaltext}>Team</Text>
+            <Text style={styles.normalInText}>{state?.user.team}</Text>
           </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputText}>Attendance</Text>
-            <TextInput
-              style={styles.inputBox}
-              value={state?.user.attendance.toString()}
-              editable={false}
-            />
+          <View style={styles.normal}>
+            <Text style={styles.normaltext}>Year</Text>
+            <Text style={styles.normalInText}>{state?.user.year}</Text>
           </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputText}>Hours</Text>
-            <TextInput
-              style={styles.inputBox}
-              value={state?.user.hours.toString()}
-              editable={false}
-            />
+          <View style={styles.normal}>
+            <Text style={styles.normaltext}>Attendance</Text>
+            <Text style={styles.normalInText}>
+              {state?.user.attendance.toString()}
+            </Text>
           </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputText}>Events Attended</Text>
-            <TextInput
-              style={styles.inputBox}
-              value={state?.user.eventsAttended.join(", ")}
-              editable={false}
-            />
+          <View style={styles.normal}>
+            <Text style={styles.normaltext}>Hours</Text>
+            <Text style={styles.normalInText}>
+              {state?.user.hours.toString()}
+            </Text>
+          </View>
+          <View style={styles.normal}>
+            <Text style={styles.normaltext}>Events Attended</Text>
+            <ScrollView style={styles.normalInText} horizontal={true}>
+              <Text>
+                {state?.user.eventsAttended.join(", ")} jhudsg ggkjcsdh
+                uihuifdsh hsdih
+              </Text>
+            </ScrollView>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -189,6 +167,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     width: width * 0.2,
     color: "#000000",
+    marginLeft: 5,
   },
   inputBox: {
     width: width * 0.6,
@@ -211,6 +190,23 @@ const styles = StyleSheet.create({
   updateBtnText: {
     color: "#ffffff",
     fontSize: width * 0.04,
+  },
+  normal: {
+    color: "#ffffff",
+    fontSize: width * 0.04,
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+  },
+  normaltext: {
+    color: "black",
+    fontSize: width * 0.04,
+    flexDirection: "row",
+    fontWeight: "bold",
+    margin: width * 0.015,
+    marginLeft: width * 0.07,
+  },
+  normalInText: {
+    marginTop: width * 0.015,
   },
 });
 
