@@ -4,7 +4,6 @@ const Event = require("../models/eventModel"); // Import the Event model
 const markAttendanceController = async (req, res) => {
   const { eventId, selectedVolunteers, eventName, eventHours } = req.body;
 
-  console.log("in ctroller ", req.body);
   try {
     const event = await Event.findOne({ eventName });
     if (!event) {

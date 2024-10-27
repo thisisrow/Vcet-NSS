@@ -1,7 +1,19 @@
+const nodemailer = require("nodemailer");
 const JWT = require("jsonwebtoken");
 const { hashPassword, comparePassword } = require("../helpers/authHelper");
 const userModel = require("../models/userModel");
 var { expressjwt: jwt } = require("express-jwt");
+const dotenv = require("dotenv");
+dotenv.config();
+
+// Nodemailer transporter setup
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "prathamesh.223414101@vcet.edu.in", // Your email
+    pass: process.env.EMAIL_PASSWORD, // Add your email password to .env
+  },
+});
 
 //middleware
 const requireSingIn = jwt({
@@ -12,8 +24,7 @@ const requireSingIn = jwt({
 //register
 const registerController = async (req, res) => {
   try {
-    const { name, email, password, year, team, position } = req.body;  //123456
-
+    const { name, email, password, year, team, position } = req.body;
     // Validation
     if (!name) {
       return res.status(400).send({
@@ -57,7 +68,7 @@ const registerController = async (req, res) => {
     }
 
     // Hash password
-    const hashedPassword = await hashPassword(password); //12345 chgkxnhmgbvn,ghmbgh 
+    const hashedPassword = await hashPassword(password); //12345 chgkxnhmgbvn,ghmbgh
 
     // Set role and position with default values
     const userRole = "Volunteer"; // Default role as 'Volunteer'
@@ -77,6 +88,31 @@ const registerController = async (req, res) => {
       eventsAttended: [], // Default as empty array for events attended
     }).save();
 
+    // Send Welcome Email
+    const mailOptions = {
+      from: "prathamesh.223414101@vcet.edu.in",
+      to: email,
+      subject: "VCET NSS - Welcome to NSS VCET",
+      text: `Welcome to NSS VCET!
+      
+      You are now a Volunteer of NSS VCET.
+      Name: ${name}
+      Email ID: ${email}
+      Password: ${password}
+      Team: ${team}
+      Position: ${position || "Volunteer"}
+
+      Please change your password after logging in.`,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log("Error sending email:", error);
+      } else {
+        console.log("Email sent:", info.response);
+      }
+    });
+
     return res.status(201).send({
       success: true,
       message: "Registration successful, please login",
@@ -91,7 +127,6 @@ const registerController = async (req, res) => {
     });
   }
 };
-
 
 //login
 const loginController = async (req, res) => {
@@ -116,7 +151,7 @@ const loginController = async (req, res) => {
     }
 
     // Match password
-    const match = await comparePassword(password, user.password);  
+    const match = await comparePassword(password, user.password);
     if (!match) {
       return res.status(500).send({
         success: false,
@@ -146,12 +181,12 @@ const loginController = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        position: user.position, // Add position to response
-        year: user.year, // Add year to response
-        team: user.team, // Add team to response
-        attendance: user.attendance, // Add attendance to response
-        hours: user.hours, // Add hours to response
-        eventsAttended: user.eventsAttended, // Include role in response
+        position: user.position,
+        year: user.year,
+        team: user.team,
+        attendance: user.attendance,
+        hours: user.hours,
+        eventsAttended: user.eventsAttended,
       },
     });
   } catch (error) {
@@ -163,7 +198,6 @@ const loginController = async (req, res) => {
     });
   }
 };
-
 
 //update user
 const updateUserController = async (req, res) => {
@@ -223,8 +257,6 @@ const getAllUsersController = async (req, res) => {
     });
   }
 };
-
-
 
 module.exports = {
   requireSingIn,

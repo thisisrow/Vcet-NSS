@@ -47,7 +47,6 @@ const PostCard = ({ posts, myPostScreen }) => {
 
   return (
     <View>
-      <Text style={styles.heading}>Total Posts {posts?.length}</Text>
       {myPostScreen && (
         <EditModal
           modalVisible={modalVisible}

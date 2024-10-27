@@ -13,91 +13,96 @@ import SubmitButton from "../../components/Forms/SubmitButton";
 import axios from "axios";
 
 const A_CreateVolenteer = ({ navigation }) => {
-   // states
-   const [name, setName] = useState("");
-   const [email, setEmail] = useState("");
-   const [password, setPassword] = useState("");
-   const [year, setYear] = useState(""); // New state for year
-   const [team, setTeam] = useState(""); // New state for team
-   const [position, setPosition] = useState(""); // New state for position
-   const [loading, setLoading] = useState(false);
- 
-   // function
-   const handleSubmit = async () => {
-     try {
-       setLoading(true);
-       if (!name || !email || !password || !year || !team) {
-         Alert.alert("Please Fill All Required Fields");
-         setLoading(false);
-         return;
-       }
-       setLoading(false);
-       const { data } = await axios.post("/auth/register", {
-         name,
-         email,
-         password,
-         year,
-         team,
-         position,
-       });
-       alert(data && data.message);
-       navigation.navigate("A_ManageEvent");
-     } catch (error) {
-       alert(error.response.data.message);
-       setLoading(false);
-       console.log(error);
-     }
-    
-   };
+  // states
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [year, setYear] = useState("");
+  const [team, setTeam] = useState("");
+  const [position, setPosition] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // function
+  const handleSubmit = async () => {
+    try {
+      setLoading(true);
+      if (!name || !email || !password || !year || !team) {
+        Alert.alert("Please Fill All Required Fields");
+        setLoading(false);
+        return;
+      }
+
+      // Sending registration details to backend
+      const { data } = await axios.post("/auth/register", {
+        name,
+        email,
+        password,
+        year,
+        team,
+        position,
+      });
+
+      alert(data && data.message); // Display message from the backend
+      setLoading(false);
+
+      // Navigate to another screen if registration is successful
+      if (data.success) {
+        navigation.navigate("A_ManageEvent");
+      }
+    } catch (error) {
+      alert(error.response.data.message || "Error occurred");
+      setLoading(false);
+      console.log(error);
+    }
+  };
+
   return (
     <View style={styles.container}>
-       <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
-    >
-      <ScrollView contentContainerStyle={styles.inner}>
-        <Text style={styles.pageTitle}>Create Volenteer</Text>
-        <View >
-          <InputBox inputTitle={"Name"} value={name} setValue={setName} />
-          <InputBox
-            inputTitle={"Email"}
-            keyboardType="email-address"
-            autoComplete="email"
-            value={email}
-            setValue={setEmail}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.container}
+      >
+        <ScrollView contentContainerStyle={styles.inner}>
+          <Text style={styles.pageTitle}>Create Volunteer</Text>
+          <View>
+            <InputBox inputTitle={"Name"} value={name} setValue={setName} />
+            <InputBox
+              inputTitle={"Email"}
+              keyboardType="email-address"
+              autoComplete="email"
+              value={email}
+              setValue={setEmail}
+            />
+            <InputBox
+              inputTitle={"Password"}
+              secureTextEntry={true}
+              autoComplete="password"
+              value={password}
+              setValue={setPassword}
+            />
+            <InputBox
+              inputTitle={"Year"}
+              keyboardType="numeric"
+              value={year}
+              setValue={setYear}
+            />
+            <InputBox inputTitle={"Team"} value={team} setValue={setTeam} />
+            <InputBox
+              inputTitle={"Position"}
+              value={position}
+              setValue={setPosition}
+            />
+          </View>
+          <SubmitButton
+            btnTitle="Register"
+            loading={loading}
+            handleSubmit={handleSubmit}
           />
-          <InputBox
-            inputTitle={"Password"}
-            secureTextEntry={true}
-            autoComplete="password"
-            value={password}
-            setValue={setPassword}
-          />
-          <InputBox
-            inputTitle={"Year"}
-            keyboardType="numeric"
-            value={year}
-            setValue={setYear}
-          />
-          <InputBox inputTitle={"Team"} value={team} setValue={setTeam} />
-          <InputBox
-            inputTitle={"Position"}
-            value={position}
-            setValue={setPosition}
-          />
-        </View>
-        <SubmitButton
-          btnTitle="Register"
-          loading={loading}
-          handleSubmit={handleSubmit}
-        />
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </View>
   );
-}
-
-
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -123,4 +128,5 @@ const styles = StyleSheet.create({
     color: "red",
   },
 });
-export default A_CreateVolenteer
+
+export default A_CreateVolenteer;

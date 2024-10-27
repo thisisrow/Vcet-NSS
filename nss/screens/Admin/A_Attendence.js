@@ -66,20 +66,12 @@ const A_Attendance = () => {
       return;
     }
     try {
-      console.log("Submitting attendance for:", selectedVolunteers); // Log selected volunteers
-      console.log("Today's Event:", todaysEvents[0]); //Log today's event details
       const eventToday = todaysEvents[0]; //Assuming only one event for today
-      console.log(
-        "Today's name and duration:",
-        eventToday.eventName,
-        eventToday.duration
-      ); //Log today's event details
       const response = await axios.put("/present/markattendance", {
         selectedVolunteers,
         eventName: eventToday.eventName,
         eventHours: eventToday.duration, //Assuming event's duration in hours is stored in eventToday
       });
-      console.log("Attendance marked successfully:", response.data); // Log successful response
       alert("Attendance marked successfully!");
     } catch (error) {
       console.error("Error marking attendance:", error); //Log the error for better debugging

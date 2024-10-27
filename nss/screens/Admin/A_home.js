@@ -8,7 +8,7 @@ import {
 import React, { useContext, useState, useCallback, useEffect } from "react";
 import { PostContext } from "../../context/postContext";
 import PostCard from "../../components/PostCard";
-import A_FooterMenu from '../../components/Menus/A_FooterMenu';
+import A_FooterMenu from "../../components/Menus/A_FooterMenu";
 
 const A_Home = () => {
   // Global state
@@ -32,13 +32,12 @@ const A_Home = () => {
           <PostCard posts={posts} />
         </ScrollView>
         <View style={{ backgroundColor: "#ffffff" }}>
-        <A_FooterMenu/>
+          <A_FooterMenu />
         </View>
       </View>
-      
     </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -48,5 +47,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default A_Home
-
+export default A_Home;

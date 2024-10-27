@@ -28,7 +28,6 @@ app.use("/api/v1/post", require("./routes/postRoutes"));
 app.use("/api/v1/events", require("./routes/eventRoutes"));
 app.use("/api/v1/present", require("./routes/attendanceRoutes"));
 
-
 //PORT
 const PORT = process.env.PORT || 3000;
 

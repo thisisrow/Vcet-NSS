@@ -11,7 +11,7 @@ import About from "../../screens/About";
 import Account from "../../screens/Account";
 import Myposts from "../../screens/Myposts";
 import AdminPost from "../../screens/AdminPost";
-import A_Home from "../../screens/Admin/A_Home"; // Admin Home
+import A_Home from "../../screens/Admin/A_home"; // Admin Home
 import A_Account from "../../screens/Admin/A_Account";
 import A_Attendence from "../../screens/Admin/A_Attendence";
 import A_Event from "../../screens/Admin/A_Event";

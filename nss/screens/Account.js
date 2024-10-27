@@ -4,56 +4,64 @@ import {
   StyleSheet,
   Image,
   TextInput,
-  Touchable,
   TouchableOpacity,
   ScrollView,
   Dimensions,
   KeyboardAvoidingView,
   Platform,
+  RefreshControl,
 } from "react-native";
-import React, { useContext, useState,useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../context/authContext";
 import FooterMenu from "../components/Menus/FooterMenu";
 import * as ImagePicker from "expo-image-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { differenceInDays } from "date-fns";
 import axios from "axios";
+
 const Account = () => {
-  //global state
+  // Global state
   const [state, setState] = useContext(AuthContext);
-  const { user, token } = state;
-  //local state
+  const { user } = state;
+
+  // Local state
   const [name, setName] = useState(user?.name);
   const [password, setPassword] = useState(user?.password);
-  const [email] = useState(user?.email);
-  const [role, setRole] = useState(user?.role);
-  const [position, setPosition] = useState(user?.position);
-  const [year, setYear] = useState(user?.year);
-  const [team, setTeam] = useState(user?.team);
-  const [attendance, setAttendance] = useState(user?.attendance);
-  const [hours, setHours] = useState(user?.hours);
-  const [eventsAttended, setEventsAttended] = useState(user?.eventsAttended);
-
   const [loading, setLoading] = useState(false);
+  const [attendance, setAttendance] = useState(user?.attendance.toString());
+  const [hours, setHours] = useState(user?.hours.toString());
+  const [eventsAttended, setEventsAttended] = useState(
+    user?.eventsAttended.join(", ")
+  );
+  const [refreshing, setRefreshing] = useState(false);
 
-  //handle update user data
+  // Handle update user data
   const handleUpdate = async () => {
     try {
       setLoading(true);
       const { data } = await axios.put("/auth/update-user", {
         name,
         password,
-        email,
+        email: user?.email,
       });
       setLoading(false);
-      let UD = JSON.stringify(data);
-      setState({ ...state, user: UD?.updatedUser });
-      alert(data && data.message);
+      setState({ ...state, user: data.updatedUser });
+      alert(data.message);
     } catch (error) {
       alert(error.response.data.message);
       setLoading(false);
-      console.log(error);
     }
+  };
+
+  // Refresh function to update local state from global context
+  const onRefresh = () => {
+    setRefreshing(true);
+    setName(user?.name); // Reset name
+    setPassword(user?.password); // Reset password
+    setAttendance(user?.attendance.toString());
+    setHours(user?.hours.toString());
+    setEventsAttended(user?.eventsAttended.join(", "));
+    setRefreshing(false);
   };
 
   // Local state for image URI
@@ -80,10 +88,8 @@ const Account = () => {
               "@profile_image_date",
             ]);
             setImageUri(null);
-            console.log("Image expired and removed after 5 days");
           } else {
             setImageUri(storedImageUri); // Set image if it's within 5 days
-            console.log("Loaded image from storage:", storedImageUri);
           }
         }
       } catch (error) {
@@ -122,12 +128,6 @@ const Account = () => {
           ["@profile_image", pickedImageUri],
           ["@profile_image_date", currentDate],
         ]);
-
-        console.log(
-          "Image and date saved to AsyncStorage:",
-          pickedImageUri,
-          currentDate
-        );
       } else {
         // If no image is picked, clear the image and date from AsyncStorage
         setImageUri(null);
@@ -135,14 +135,11 @@ const Account = () => {
           "@profile_image",
           "@profile_image_date",
         ]);
-        console.log("Image removed from AsyncStorage");
       }
     } catch (error) {
       console.error("Error picking image:", error);
     }
   };
-
-  console.log(imageUri);
 
   return (
     <View style={styles.container}>
@@ -166,7 +163,11 @@ const Account = () => {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.container}
       >
-        <ScrollView>
+        <ScrollView
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        >
           <View style={styles.inputContainer}>
             <Text style={styles.inputText}>Name</Text>
             <TextInput
@@ -175,14 +176,7 @@ const Account = () => {
               onChangeText={(text) => setName(text)}
             />
           </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputText}>Email</Text>
-            <TextInput
-              style={styles.inputBox}
-              value={state?.user.email}
-              editable={false}
-            />
-          </View>
+
           <View style={styles.inputContainer}>
             <Text style={styles.inputText}>Password</Text>
             <TextInput
@@ -192,61 +186,39 @@ const Account = () => {
               secureTextEntry={true}
             />
           </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputText}>Role</Text>
-            <TextInput
-              style={styles.inputBox}
-              value={state?.user.role}
-              editable={false}
-            />
+          <View style={styles.normal}>
+            <Text style={styles.normaltext}>Email</Text>
+            <Text style={styles.normalInText}>{user?.email}</Text>
           </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputText}>Position</Text>
-            <TextInput
-              style={styles.inputBox}
-              value={state?.user.position}
-              editable={false}
-            />
+          <View style={styles.normal}>
+            <Text style={styles.normaltext}>Role</Text>
+            <Text style={styles.normalInText}>{user?.role}</Text>
           </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputText}>Team</Text>
-            <TextInput
-              style={styles.inputBox}
-              value={state?.user.team}
-              editable={false}
-            />
+          <View style={styles.normal}>
+            <Text style={styles.normaltext}>Position</Text>
+            <Text style={styles.normalInText}>{user?.position}</Text>
           </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputText}>Year</Text>
-            <TextInput
-              style={styles.inputBox}
-              value={state?.user.year}
-              editable={false}
-            />
+          <View style={styles.normal}>
+            <Text style={styles.normaltext}>Team</Text>
+            <Text style={styles.normalInText}>{user?.team}</Text>
           </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputText}>Attendance</Text>
-            <TextInput
-              style={styles.inputBox}
-              value={state?.user.attendance.toString()}
-              editable={false}
-            />
+          <View style={styles.normal}>
+            <Text style={styles.normaltext}>Year</Text>
+            <Text style={styles.normalInText}>{user?.year}</Text>
           </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputText}>Hours</Text>
-            <TextInput
-              style={styles.inputBox}
-              value={state?.user.hours.toString()}
-              editable={false}
-            />
+          <View style={styles.normal}>
+            <Text style={styles.normaltext}>Attendance</Text>
+            <Text style={styles.normalInText}>{attendance}</Text>
           </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputText}>Events Attended</Text>
-            <TextInput
-              style={styles.inputBox}
-              value={state?.user.eventsAttended.join(", ")}
-              editable={false}
-            />
+          <View style={styles.normal}>
+            <Text style={styles.normaltext}>Hours</Text>
+            <Text style={styles.normalInText}>{hours}</Text>
+          </View>
+          <View style={styles.normal}>
+            <Text style={styles.normaltext}>Events Attended</Text>
+            <ScrollView style={styles.normalInText} horizontal={true}>
+              <Text>{eventsAttended}</Text>
+            </ScrollView>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -267,47 +239,70 @@ const { width, height } = Dimensions.get("window"); // Get device dimensions
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    margin: width * 0.01, 
+    margin: width * 0.01,
     justifyContent: "space-between",
-    marginTop: height * 0.01, 
+    marginTop: height * 0.01,
   },
   warningtext: {
     color: "red",
-    fontSize: width * 0.035, 
+    fontSize: width * 0.035,
     textAlign: "center",
   },
   inputContainer: {
-    marginTop: height * 0.02, 
+    marginTop: height * 0.02,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
   },
   inputText: {
     fontWeight: "bold",
-    width: width * 0.20, 
+    width: width * 0.2,
     color: "#000000",
   },
   inputBox: {
-    width: width * 0.6, 
+    width: width * 0.6,
     backgroundColor: "#ffffff",
-    marginLeft: width * 0.025, 
-    fontSize: width * 0.04, 
-    paddingLeft: width * 0.04, 
+    marginLeft: width * 0.025,
+    fontSize: width * 0.04,
+    paddingLeft: width * 0.04,
     borderRadius: 5,
   },
   updateBtn: {
     backgroundColor: "black",
     color: "white",
-    height: height * 0.06, 
-    width: width * 0.7, 
+    height: height * 0.06,
+    width: width * 0.7,
     borderRadius: 10,
-    marginTop: height * 0.04, 
-    alignItems: "center",
+    marginTop: height * 0.03,
     justifyContent: "center",
+    alignItems: "center",
   },
   updateBtnText: {
-    color: "#ffffff",
-    fontSize: width * 0.04, 
+    color: "white",
+    fontWeight: "bold",
+    fontSize: width * 0.045,
+  },
+  normal: {
+    marginTop: height * 0.015,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  normaltext: {
+    fontWeight: "bold",
+    width: width * 0.3,
+    color: "#000000",
+  },
+  normalInText: {
+    width: width * 0.5,
+    backgroundColor: "#ffffff",
+    marginLeft: width * 0.025,
+    paddingLeft: width * 0.04,
+    fontSize: width * 0.04,
+    borderRadius: 5,
+    textAlignVertical: "center",
+    paddingVertical: height * 0.015,
   },
 });
+
 export default Account;
