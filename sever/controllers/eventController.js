@@ -32,7 +32,7 @@ const createEventController = async (req, res) => {
 // Controller for fetching all events
 const getAllEventsController = async (req, res) => {
   try {
-    const events = await Event.find();
+    const events = await Event.find().sort({ date: -1 });
     res.status(200).json({
       success: true,
       events,

@@ -63,7 +63,6 @@ const A_CreateVolenteer = ({ navigation }) => {
         style={styles.container}
       >
         <ScrollView contentContainerStyle={styles.inner}>
-          <Text style={styles.pageTitle}>Create Volunteer</Text>
           <View>
             <InputBox inputTitle={"Name"} value={name} setValue={setName} />
             <InputBox

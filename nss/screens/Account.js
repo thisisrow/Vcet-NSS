@@ -169,7 +169,7 @@ const Account = () => {
           }
         >
           <View style={styles.inputContainer}>
-            <Text style={styles.inputText}>Name</Text>
+            <Text style={styles.inputText}>Name :</Text>
             <TextInput
               style={styles.inputBox}
               value={name}
@@ -178,7 +178,7 @@ const Account = () => {
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.inputText}>Password</Text>
+            <Text style={styles.inputText}>Password :</Text>
             <TextInput
               style={styles.inputBox}
               value={password}
@@ -187,35 +187,35 @@ const Account = () => {
             />
           </View>
           <View style={styles.normal}>
-            <Text style={styles.normaltext}>Email</Text>
+            <Text style={styles.normaltext}>Email :</Text>
             <Text style={styles.normalInText}>{user?.email}</Text>
           </View>
           <View style={styles.normal}>
-            <Text style={styles.normaltext}>Role</Text>
+            <Text style={styles.normaltext}>Role :</Text>
             <Text style={styles.normalInText}>{user?.role}</Text>
           </View>
           <View style={styles.normal}>
-            <Text style={styles.normaltext}>Position</Text>
+            <Text style={styles.normaltext}>Position :</Text>
             <Text style={styles.normalInText}>{user?.position}</Text>
           </View>
           <View style={styles.normal}>
-            <Text style={styles.normaltext}>Team</Text>
+            <Text style={styles.normaltext}>Team :</Text>
             <Text style={styles.normalInText}>{user?.team}</Text>
           </View>
           <View style={styles.normal}>
-            <Text style={styles.normaltext}>Year</Text>
+            <Text style={styles.normaltext}>Year :</Text>
             <Text style={styles.normalInText}>{user?.year}</Text>
           </View>
           <View style={styles.normal}>
-            <Text style={styles.normaltext}>Attendance</Text>
+            <Text style={styles.normaltext}>Attendance :</Text>
             <Text style={styles.normalInText}>{attendance}</Text>
           </View>
           <View style={styles.normal}>
-            <Text style={styles.normaltext}>Hours</Text>
+            <Text style={styles.normaltext}>Hours :</Text>
             <Text style={styles.normalInText}>{hours}</Text>
           </View>
           <View style={styles.normal}>
-            <Text style={styles.normaltext}>Events Attended</Text>
+            <Text style={styles.normaltext}>Events Attended :</Text>
             <ScrollView style={styles.normalInText} horizontal={true}>
               <Text>{eventsAttended}</Text>
             </ScrollView>
@@ -234,13 +234,11 @@ const Account = () => {
   );
 };
 
-const { width, height } = Dimensions.get("window"); // Get device dimensions
-
+const { width, height } = Dimensions.get("window");
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     margin: width * 0.01,
-    justifyContent: "space-between",
     marginTop: height * 0.01,
   },
   warningtext: {
@@ -256,52 +254,44 @@ const styles = StyleSheet.create({
   },
   inputText: {
     fontWeight: "bold",
-    width: width * 0.2,
     color: "#000000",
+    margin: width * 0.015,
+    marginLeft: width * 0.07,
+    width: width * 0.25,
   },
   inputBox: {
     width: width * 0.6,
     backgroundColor: "#ffffff",
-    marginLeft: width * 0.025,
+    marginLeft: width * 0.02,
     fontSize: width * 0.04,
     paddingLeft: width * 0.04,
     borderRadius: 5,
   },
   updateBtn: {
     backgroundColor: "black",
-    color: "white",
     height: height * 0.06,
-    width: width * 0.7,
-    borderRadius: 10,
-    marginTop: height * 0.03,
-    justifyContent: "center",
+    width: width * 0.8,
+    borderRadius: 30,
     alignItems: "center",
+    justifyContent: "center",
   },
   updateBtnText: {
-    color: "white",
-    fontWeight: "bold",
-    fontSize: width * 0.045,
+    color: "#ffffff",
+    textAlign: "center",
+    fontSize: 24,
+    fontWeight: "400",
   },
   normal: {
-    marginTop: height * 0.015,
     flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
+    marginTop: width * 0.0015,
   },
   normaltext: {
-    fontWeight: "bold",
-    width: width * 0.3,
-    color: "#000000",
-  },
-  normalInText: {
-    width: width * 0.5,
-    backgroundColor: "#ffffff",
-    marginLeft: width * 0.025,
-    paddingLeft: width * 0.04,
+    color: "black",
     fontSize: width * 0.04,
-    borderRadius: 5,
-    textAlignVertical: "center",
-    paddingVertical: height * 0.015,
+    fontWeight: "bold",
+    margin: width * 0.015,
+    marginLeft: width * 0.07,
+    width: width * 0.25,
   },
 });
 
