@@ -19,6 +19,6 @@ router.post("/login", loginController);
 router.put("/update-user", requireSingIn, updateUserController);
 
 // GET ALL USERS || GET
-router.get("/all-users",requireSingIn, getAllUsersController);
+router.get("/users", requireSingIn, getAllUsersController);
 
 module.exports = router;

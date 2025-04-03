@@ -6,6 +6,7 @@ import {
   RefreshControl,
   StatusBar,
   Dimensions,
+  TouchableOpacity,
 } from "react-native";
 import React, { useContext, useState, useCallback, useEffect } from "react";
 import { PostContext } from "../../context/postContext";
@@ -14,10 +15,11 @@ import PostCard from "../../components/PostCard";
 import A_FooterMenu from "../../components/Menus/A_FooterMenu";
 import theme from "../../components/theme";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 const { width, height } = Dimensions.get("window");
 
-const A_Home = () => {
+const A_Home = ({ navigation }) => {
   // Global state
   const [posts, , getAllPosts] = useContext(PostContext);
   const [state] = useContext(AuthContext);
@@ -99,6 +101,14 @@ const A_Home = () => {
           <View style={styles.bottomPadding}/>
         </ScrollView>
       </View>
+      
+      {/* Chat Button */}
+      <TouchableOpacity
+        style={styles.chatButton}
+        onPress={() => navigation.navigate("ChatVideo")}
+      >
+        <Ionicons name="chatbubbles" size={28} color="#fff" />
+      </TouchableOpacity>
       
       <View style={styles.footerContainer}>
         <A_FooterMenu />
@@ -197,6 +207,23 @@ const styles = StyleSheet.create({
   },
   footerContainer: {
     backgroundColor: theme.colors.white,
+  },
+  chatButton: {
+    position: 'absolute',
+    bottom: 80,
+    right: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: theme.colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    zIndex: 100,
   },
 });
 

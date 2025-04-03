@@ -7,12 +7,14 @@ import {
   StatusBar,
   Dimensions,
   ImageBackground,
+  TouchableOpacity,
 } from "react-native";
 import React, { useContext, useState, useCallback, useEffect } from "react";
 import FooterMenu from "../components/Menus/FooterMenu";
 import { PostContext } from "../context/postContext";
 import { AuthContext } from "../context/authContext";
 import PostCard from "../components/PostCard";
+import Icon from "react-native-vector-icons/Ionicons";
 
 const { width, height } = Dimensions.get("window");
 
@@ -21,7 +23,7 @@ const PRIMARY_COLOR = "#4361ee";
 const BACKGROUND_COLOR = "#f8f9fa";
 const TEXT_COLOR = "#333333";
 
-const Home = () => {
+const Home = ({ navigation }) => {
   // Global state
   const [posts, , getAllPosts] = useContext(PostContext);
   const [state] = useContext(AuthContext);
@@ -83,6 +85,14 @@ const Home = () => {
           <View style={styles.bottomPadding}/>
         </ScrollView>
       </View>
+      
+      {/* Chat Button */}
+      <TouchableOpacity
+        style={styles.chatButton}
+        onPress={() => navigation.navigate("ChatVideo")}
+      >
+        <Icon name="chatbubbles" size={28} color="#fff" />
+      </TouchableOpacity>
       
       <View style={styles.footerContainer}>
         <FooterMenu />
@@ -156,6 +166,23 @@ const styles = StyleSheet.create({
   },
   footerContainer: {
     backgroundColor: "#ffffff",
+  },
+  chatButton: {
+    position: 'absolute',
+    bottom: 80,
+    right: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: PRIMARY_COLOR,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    zIndex: 100,
   },
 });
 

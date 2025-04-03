@@ -4,13 +4,16 @@ import { AuthProvider } from "./context/authContext";
 import ScreenMenu from "./components/Menus/ScreenMenu";
 import { PostProvider } from "./context/postContext";
 import { EventProvider } from "./context/eventContext";
+import { SocketProvider } from "./context/socketContext";
 
 const RootNavigation = () => {
   return (
     <AuthProvider>
       <EventProvider>
         <PostProvider>
-          <ScreenMenu />
+          <SocketProvider>
+            <ScreenMenu />
+          </SocketProvider>
         </PostProvider>
       </EventProvider>
     </AuthProvider>

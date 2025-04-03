@@ -18,6 +18,7 @@ import A_Event from "../../screens/Admin/A_Event";
 import A_ManageEvent from "../../screens/Admin/A_ManageEvent";
 import A_allVolenteer from "../../screens/Admin/A_allVolenteer";
 import A_CreateVolenteer from "../../screens/Admin/A_CreateVolenteer";
+import ChatVideo from "../../screens/ChatVideo";
 import theme from "../theme";
 
 const ScreenMenu = () => {
@@ -123,6 +124,14 @@ const ScreenMenu = () => {
                   ...adminScreenOptions,
                 }}
               />
+              <Stack.Screen
+                name="ChatVideo"
+                component={ChatVideo}
+                options={{
+                  title: "Chat & Video",
+                  ...adminScreenOptions,
+                }}
+              />
             </>
           ) : (
             // Volunteer Screens
@@ -180,6 +189,14 @@ const ScreenMenu = () => {
                 component={Myposts}
                 options={{
                   title: "My Posts",
+                  ...volunteerScreenOptions,
+                }}
+              />
+              <Stack.Screen
+                name="ChatVideo"
+                component={ChatVideo}
+                options={{
+                  title: "Chat & Video",
                   ...volunteerScreenOptions,
                 }}
               />
