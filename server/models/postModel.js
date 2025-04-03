@@ -11,6 +11,10 @@ const postSchema = new mongoose.Schema(
       type: String,
       required: [true, "please add post description"],
     },
+    document: {
+      type: String,
+      default: "",
+    },
     postedBy: {
       type: mongoose.Schema.ObjectId,
       ref: "User",

@@ -23,6 +23,9 @@ app.use(express.json());
 app.use(morgan("dev"));
 
 //ROUTES
+app.get("/", (req, res) => {
+  res.send("Hello World");
+});
 app.use("/api/v1/auth", require("./routes/userRoutes"));
 app.use("/api/v1/post", require("./routes/postRoutes"));
 app.use("/api/v1/events", require("./routes/eventRoutes"));

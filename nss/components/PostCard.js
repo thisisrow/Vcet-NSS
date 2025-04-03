@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Alert, Dimensions, TouchableOpacity, Image } from "react-native";
+import { View, Text, StyleSheet, Alert, Dimensions, TouchableOpacity, Image, Linking } from "react-native";
 import React, { useState } from "react";
 import moment from "moment";
 import axios from "axios";
@@ -55,6 +55,35 @@ const PostCard = ({ posts, myPostScreen }) => {
     }
   };
 
+  // Open document
+  const openDocument = (url) => {
+    if (url) {
+      Linking.openURL(url)
+        .catch(err => alert('Unable to open document. Please try again later.'));
+    }
+  };
+
+  // Get file extension from URL
+  const getFileExtension = (url) => {
+    if (!url) return '';
+    return url.split('.').pop().toLowerCase();
+  };
+
+  // Get document icon based on extension
+  const getDocumentIcon = (url) => {
+    const extension = getFileExtension(url);
+    
+    if (['jpg', 'jpeg', 'png', 'gif'].includes(extension)) {
+      return 'file-image';
+    } else if (['pdf'].includes(extension)) {
+      return 'file-pdf';
+    } else if (['doc', 'docx'].includes(extension)) {
+      return 'file-word';
+    } else {
+      return 'file-alt';
+    }
+  };
+
   return (
     <View>
       {myPostScreen && (
@@ -88,6 +117,20 @@ const PostCard = ({ posts, myPostScreen }) => {
           
           <Text style={styles.title}>{post?.title}</Text>
           <Text style={styles.desc}>{post?.description}</Text>
+          
+          {post?.document && (
+            <TouchableOpacity 
+              style={styles.documentContainer}
+              onPress={() => openDocument(post.document)}
+            >
+              <FontAwesome5 
+                name={getDocumentIcon(post.document)} 
+                size={20} 
+                color={PRIMARY_COLOR} 
+              />
+              <Text style={styles.documentText}>View Attachment</Text>
+            </TouchableOpacity>
+          )}
           
           <View style={styles.divider} />
           
@@ -151,6 +194,20 @@ const styles = StyleSheet.create({
     color: TEXT_COLOR,
     lineHeight: 22,
     marginBottom: 15,
+  },
+  documentContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f8f9fa',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 15,
+  },
+  documentText: {
+    marginLeft: 10,
+    color: PRIMARY_COLOR,
+    fontWeight: '600',
+    fontSize: 14,
   },
   divider: {
     height: 1,
