@@ -10,6 +10,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   RefreshControl,
+  StatusBar,
+  Alert,
 } from "react-native";
 import React, { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../../context/authContext";
@@ -18,6 +20,10 @@ import A_FooterMenu from "../../components/Menus/A_FooterMenu";
 import * as ImagePicker from "expo-image-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { differenceInDays } from "date-fns";
+import theme from "../../components/theme";
+import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
+
+const { width, height } = Dimensions.get("window");
 
 const A_Account = () => {
   // Global state
@@ -25,47 +31,59 @@ const A_Account = () => {
   const { user } = state;
 
   // Local state
-  const [name, setName] = useState(user?.name);
-  const [password, setPassword] = useState(user?.password);
+  const [name, setName] = useState(user?.name || "");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [attendance, setAttendance] = useState(user?.attendance.toString());
-  const [hours, setHours] = useState(user?.hours.toString());
+  const [attendance, setAttendance] = useState(user?.attendance?.toString() || "0");
+  const [hours, setHours] = useState(user?.hours?.toString() || "0");
   const [eventsAttended, setEventsAttended] = useState(
-    user?.eventsAttended.join(", ")
+    user?.eventsAttended?.join(", ") || "None"
   );
   const [refreshing, setRefreshing] = useState(false);
+  const [imageUri, setImageUri] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   // Handle update user data
   const handleUpdate = async () => {
     try {
+      if (!name.trim()) {
+        Alert.alert("Error", "Name cannot be empty");
+        return;
+      }
+      
+      if (password && password.length < 6) {
+        Alert.alert("Error", "Password must be at least 6 characters");
+        return;
+      }
+      
       setLoading(true);
       const { data } = await axios.put("/api/v1/auth/update-user", {
         name,
-        password,
+        password: password || undefined, // Only send password if it has been changed
         email: user?.email,
       });
       setLoading(false);
       setState({ ...state, user: data.updatedUser });
-      alert(data.message);
+      Alert.alert("Success", data.message || "Profile updated successfully");
+      
+      // Reset password field after successful update
+      setPassword("");
     } catch (error) {
-      alert(error.response.data.message);
       setLoading(false);
+      Alert.alert("Error", error.response?.data?.message || "Update failed");
     }
   };
 
   // Refresh function to update local state from global context
   const onRefresh = () => {
     setRefreshing(true);
-    setName(user?.name); // Reset name
-    setPassword(user?.password); // Reset password
-    setAttendance(user?.attendance.toString());
-    setHours(user?.hours.toString());
-    setEventsAttended(user?.eventsAttended.join(", "));
+    setName(user?.name || ""); // Reset name
+    setPassword(""); // Reset password
+    setAttendance(user?.attendance?.toString() || "0");
+    setHours(user?.hours?.toString() || "0");
+    setEventsAttended(user?.eventsAttended?.join(", ") || "None");
     setRefreshing(false);
   };
-
-  // Local state for image URI
-  const [imageUri, setImageUri] = useState(null);
 
   // Load stored image from AsyncStorage and check the date
   useEffect(() => {
@@ -74,7 +92,7 @@ const A_Account = () => {
         const storedImageUri = await AsyncStorage.getItem("@profile_image");
         const storedImageDate = await AsyncStorage.getItem(
           "@profile_image_date"
-        ); // Get the stored date
+        );
 
         if (storedImageUri && storedImageDate) {
           const daysDifference = differenceInDays(
@@ -106,7 +124,7 @@ const A_Account = () => {
       const permissionResult =
         await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!permissionResult.granted) {
-        alert("Permission to access media library is required!");
+        Alert.alert("Permission Required", "Permission to access media library is required!");
         return;
       }
 
@@ -143,155 +161,403 @@ const A_Account = () => {
 
   return (
     <View style={styles.container}>
-      <View style={{ alignItems: "center" }}>
-        <TouchableOpacity onPress={pickImage}>
-          <Image
-            source={{
-              uri:
-                imageUri ||
-                "https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png",
-            }}
-            style={{ height: 200, width: 200, borderRadius: 100 }}
+      <StatusBar backgroundColor={theme.colors.primary} barStyle="light-content" />
+      
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Admin Profile</Text>
+        <Text style={styles.headerSubtitle}>{user?.email}</Text>
+      </View>
+      
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl 
+            refreshing={refreshing} 
+            onRefresh={onRefresh}
+            colors={[theme.colors.primary]} 
           />
-        </TouchableOpacity>
-        <Text style={{ color: "blue" }}>Tap to change profile picture</Text>
-      </View>
-      <Text style={styles.warningtext}>
-        Currently You Can Only Update Your Name And Password*
-      </Text>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.container}
+        }
       >
-        <ScrollView
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-        >
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputText}>Name :</Text>
-            <TextInput
-              style={styles.inputBox}
-              value={name}
-              onChangeText={(text) => setName(text)}
+        <View style={styles.profileImageContainer}>
+          <TouchableOpacity onPress={pickImage} style={styles.profileImageWrapper}>
+            <Image
+              source={{
+                uri:
+                  imageUri ||
+                  "https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png",
+              }}
+              style={styles.profileImage}
             />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputText}>Password :</Text>
-            <TextInput
-              style={styles.inputBox}
-              value={password}
-              onChangeText={(text) => setPassword(text)}
-              secureTextEntry={true}
-            />
-          </View>
-          <View style={styles.normal}>
-            <Text style={styles.normaltext}>Email :</Text>
-            <Text style={styles.normalInText}>{user?.email}</Text>
-          </View>
-          <View style={styles.normal}>
-            <Text style={styles.normaltext}>Role :</Text>
-            <Text style={styles.normalInText}>{user?.role}</Text>
-          </View>
-          <View style={styles.normal}>
-            <Text style={styles.normaltext}>Position :</Text>
-            <Text style={styles.normalInText}>{user?.position}</Text>
-          </View>
-          <View style={styles.normal}>
-            <Text style={styles.normaltext}>Team :</Text>
-            <Text style={styles.normalInText}>{user?.team}</Text>
-          </View>
-          <View style={styles.normal}>
-            <Text style={styles.normaltext}>Year :</Text>
-            <Text style={styles.normalInText}>{user?.year}</Text>
-          </View>
-          <View style={styles.normal}>
-            <Text style={styles.normaltext}>Attendance :</Text>
-            <Text style={styles.normalInText}>{attendance}</Text>
-          </View>
-          <View style={styles.normal}>
-            <Text style={styles.normaltext}>Hours :</Text>
-            <Text style={styles.normalInText}>{hours}</Text>
-          </View>
-          <View style={styles.normal}>
-            <Text style={styles.normaltext}>Events Attended :</Text>
-            <ScrollView style={styles.normalInText} horizontal={true}>
-              <Text>{eventsAttended}</Text>
-            </ScrollView>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-      <View style={{ alignItems: "center" }}>
-        <TouchableOpacity style={styles.updateBtn} onPress={handleUpdate}>
-          <Text style={styles.updateBtnText}>
-            {loading ? "Please Wait" : "Update Profile"}
+            <View style={styles.editImageButton}>
+              <FontAwesome5 name="camera" size={14} color={theme.colors.white} />
+            </View>
+          </TouchableOpacity>
+          <Text style={styles.imageHelpText}>Tap to change profile picture</Text>
+        </View>
+        
+        {/* Editable Information Section */}
+        <View style={styles.infoSection}>
+          <Text style={styles.sectionTitle}>Editable Information</Text>
+          <Text style={styles.warningText}>
+            You can only update your name and password
           </Text>
-        </TouchableOpacity>
+          
+          <View style={styles.inputGroup}>
+            <Text style={styles.inputLabel}>Name</Text>
+            <View style={styles.inputContainer}>
+              <FontAwesome5 name="user" size={16} color={theme.colors.mediumGray} style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                value={name}
+                onChangeText={(text) => setName(text)}
+                placeholder="Your name"
+              />
+            </View>
+          </View>
+          
+          <View style={styles.inputGroup}>
+            <Text style={styles.inputLabel}>Password</Text>
+            <View style={styles.inputContainer}>
+              <FontAwesome5 name="lock" size={16} color={theme.colors.mediumGray} style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                value={password}
+                onChangeText={(text) => setPassword(text)}
+                secureTextEntry={!showPassword}
+                placeholder="Enter new password"
+              />
+              <TouchableOpacity 
+                onPress={() => setShowPassword(!showPassword)}
+                style={styles.eyeIcon}
+              >
+                <FontAwesome5 
+                  name={showPassword ? "eye-slash" : "eye"} 
+                  size={16} 
+                  color={theme.colors.mediumGray} 
+                />
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.passwordHelpText}>Leave blank to keep current password</Text>
+          </View>
+          
+          <TouchableOpacity 
+            style={[
+              styles.updateButton,
+              loading && styles.updateButtonDisabled
+            ]}
+            onPress={handleUpdate}
+            disabled={loading}
+          >
+            <Text style={styles.updateButtonText}>
+              {loading ? "Updating..." : "Update Profile"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+        
+        {/* Account Information Section */}
+        <View style={styles.infoSection}>
+          <Text style={styles.sectionTitle}>Account Information</Text>
+          
+          <View style={styles.infoItem}>
+            <View style={styles.infoLabel}>
+              <FontAwesome5 name="envelope" size={16} color={theme.colors.primary} />
+              <Text style={styles.infoLabelText}>Email</Text>
+            </View>
+            <Text style={styles.infoValue}>{user?.email}</Text>
+          </View>
+          
+          <View style={styles.infoItem}>
+            <View style={styles.infoLabel}>
+              <FontAwesome5 name="user-tag" size={16} color={theme.colors.primary} />
+              <Text style={styles.infoLabelText}>Role</Text>
+            </View>
+            <Text style={styles.infoValue}>{user?.role}</Text>
+          </View>
+          
+          <View style={styles.infoItem}>
+            <View style={styles.infoLabel}>
+              <FontAwesome5 name="id-badge" size={16} color={theme.colors.primary} />
+              <Text style={styles.infoLabelText}>Position</Text>
+            </View>
+            <Text style={styles.infoValue}>{user?.position || "Not specified"}</Text>
+          </View>
+          
+          <View style={styles.infoItem}>
+            <View style={styles.infoLabel}>
+              <FontAwesome5 name="users" size={16} color={theme.colors.primary} />
+              <Text style={styles.infoLabelText}>Team</Text>
+            </View>
+            <Text style={styles.infoValue}>{user?.team || "Not assigned"}</Text>
+          </View>
+          
+          <View style={styles.infoItem}>
+            <View style={styles.infoLabel}>
+              <FontAwesome5 name="calendar-alt" size={16} color={theme.colors.primary} />
+              <Text style={styles.infoLabelText}>Year</Text>
+            </View>
+            <Text style={styles.infoValue}>{user?.year || "Not specified"}</Text>
+          </View>
+        </View>
+        
+        {/* Activity Information Section */}
+        <View style={styles.infoSection}>
+          <Text style={styles.sectionTitle}>Activity Information</Text>
+          
+          <View style={styles.statsContainer}>
+            <View style={styles.statCard}>
+              <Text style={styles.statNumber}>{attendance}</Text>
+              <Text style={styles.statLabel}>Attendance</Text>
+            </View>
+            
+            <View style={styles.statCard}>
+              <Text style={styles.statNumber}>{hours}</Text>
+              <Text style={styles.statLabel}>Hours</Text>
+            </View>
+          </View>
+          
+          <View style={styles.eventsSection}>
+            <Text style={styles.eventsTitle}>Events Attended</Text>
+            {user?.eventsAttended && user.eventsAttended.length > 0 ? (
+              <View style={styles.eventsChipsContainer}>
+                {user.eventsAttended.map((event, index) => (
+                  <View key={index} style={styles.eventChip}>
+                    <Text style={styles.eventChipText}>{event}</Text>
+                  </View>
+                ))}
+              </View>
+            ) : (
+              <Text style={styles.noEventsText}>No events attended yet</Text>
+            )}
+          </View>
+        </View>
+        
+        <View style={styles.bottomPadding} />
+      </ScrollView>
+      
+      <View style={styles.footerContainer}>
+        <A_FooterMenu />
       </View>
-      <A_FooterMenu />
     </View>
   );
 };
 
-const { width, height } = Dimensions.get("window");
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    margin: width * 0.01,
-    marginTop: height * 0.01,
+    backgroundColor: theme.colors.background,
   },
-  warningtext: {
-    color: "red",
-    fontSize: width * 0.035,
-    textAlign: "center",
+  header: {
+    backgroundColor: theme.colors.primary,
+    paddingTop: 30,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    ...theme.shadows.medium,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: theme.colors.white,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: "rgba(255, 255, 255, 0.8)",
+    marginTop: 5,
+  },
+  scrollContent: {
+    paddingHorizontal: 16,
+    paddingTop: 20,
+    paddingBottom: 100,
+  },
+  profileImageContainer: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  profileImageWrapper: {
+    position: "relative",
+  },
+  profileImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 3,
+    borderColor: theme.colors.white,
+    ...theme.shadows.medium,
+  },
+  editImageButton: {
+    position: "absolute",
+    bottom: 5,
+    right: 5,
+    backgroundColor: theme.colors.primary,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    justifyContent: "center",
+    alignItems: "center",
+    ...theme.shadows.small,
+  },
+  imageHelpText: {
+    marginTop: 10,
+    color: theme.colors.primary,
+    fontSize: 14,
+  },
+  infoSection: {
+    backgroundColor: theme.colors.white,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    ...theme.shadows.small,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: theme.colors.black,
+    marginBottom: 10,
+  },
+  warningText: {
+    fontSize: 14,
+    color: theme.colors.danger,
+    marginBottom: 15,
+    fontStyle: "italic",
+  },
+  inputGroup: {
+    marginBottom: 16,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: theme.colors.darkGray,
+    marginBottom: 8,
   },
   inputContainer: {
-    marginTop: height * 0.02,
     flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: theme.colors.ultraLightGray,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    height: 50,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  inputIcon: {
+    marginRight: 10,
+  },
+  input: {
+    flex: 1,
+    fontSize: 16,
+    color: theme.colors.black,
+  },
+  eyeIcon: {
+    padding: 8,
+  },
+  passwordHelpText: {
+    fontSize: 12,
+    color: theme.colors.mediumGray,
+    marginTop: 4,
+    marginLeft: 4,
+  },
+  updateButton: {
+    backgroundColor: theme.colors.primary,
+    borderRadius: 12,
+    height: 50,
     justifyContent: "center",
     alignItems: "center",
+    marginTop: 10,
+    ...theme.shadows.small,
   },
-  inputText: {
-    fontWeight: "bold",
-    color: "#000000",
-    margin: width * 0.015,
-    marginLeft: width * 0.07,
-    width: width * 0.25,
+  updateButtonDisabled: {
+    backgroundColor: theme.colors.lightGray,
   },
-  inputBox: {
-    width: width * 0.6,
-    backgroundColor: "#ffffff",
-    marginLeft: width * 0.02,
-    fontSize: width * 0.04,
-    paddingLeft: width * 0.04,
-    borderRadius: 5,
+  updateButtonText: {
+    color: theme.colors.white,
+    fontSize: 16,
+    fontWeight: "600",
   },
-  updateBtn: {
-    backgroundColor: "black",
-    height: height * 0.06,
-    width: width * 0.8,
-    borderRadius: 30,
+  infoItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
-    justifyContent: "center",
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.ultraLightGray,
   },
-  updateBtnText: {
-    color: "#ffffff",
-    textAlign: "center",
+  infoLabel: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  infoLabelText: {
+    marginLeft: 10,
+    fontSize: 15,
+    color: theme.colors.darkGray,
+    fontWeight: "500",
+  },
+  infoValue: {
+    fontSize: 15,
+    color: theme.colors.black,
+  },
+  statsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginVertical: 15,
+  },
+  statCard: {
+    alignItems: "center",
+    backgroundColor: theme.colors.ultraLightGray,
+    paddingVertical: 15,
+    paddingHorizontal: 25,
+    borderRadius: 12,
+    width: "45%",
+  },
+  statNumber: {
     fontSize: 24,
-    fontWeight: "400",
-  },
-  normal: {
-    flexDirection: "row",
-    marginTop: width * 0.0015,
-  },
-  normaltext: {
-    color: "black",
-    fontSize: width * 0.04,
     fontWeight: "bold",
-    margin: width * 0.015,
-    marginLeft: width * 0.07,
-    width: width * 0.25,
+    color: theme.colors.primary,
+    marginBottom: 5,
+  },
+  statLabel: {
+    fontSize: 14,
+    color: theme.colors.mediumGray,
+  },
+  eventsSection: {
+    marginTop: 15,
+  },
+  eventsTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: theme.colors.darkGray,
+    marginBottom: 10,
+  },
+  eventsChipsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  eventChip: {
+    backgroundColor: theme.colors.primary,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  eventChipText: {
+    color: theme.colors.white,
+    fontSize: 14,
+  },
+  noEventsText: {
+    color: theme.colors.mediumGray,
+    fontStyle: "italic",
+  },
+  bottomPadding: {
+    height: 20,
+  },
+  footerContainer: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: theme.colors.white,
   },
 });
 

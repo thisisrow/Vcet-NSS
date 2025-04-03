@@ -18,6 +18,7 @@ import A_Event from "../../screens/Admin/A_Event";
 import A_ManageEvent from "../../screens/Admin/A_ManageEvent";
 import A_allVolenteer from "../../screens/Admin/A_allVolenteer";
 import A_CreateVolenteer from "../../screens/Admin/A_CreateVolenteer";
+import theme from "../theme";
 
 const ScreenMenu = () => {
   const [state] = useContext(AuthContext);
@@ -26,8 +27,38 @@ const ScreenMenu = () => {
 
   const Stack = createNativeStackNavigator();
 
+  // Common screen options
+  const commonScreenOptions = {
+    headerStyle: {
+      backgroundColor: theme.colors.primary,
+    },
+    headerTintColor: '#fff',
+    headerTitleStyle: {
+      fontWeight: '600',
+    },
+    headerShadowVisible: false,
+    contentStyle: {
+      backgroundColor: theme.colors.background,
+    },
+  };
+
+  // Admin screen options
+  const adminScreenOptions = {
+    ...commonScreenOptions,
+    headerRight: () => <HeaderMenu />,
+  };
+
+  // Volunteer screen options
+  const volunteerScreenOptions = {
+    ...commonScreenOptions,
+    headerRight: () => <HeaderMenu />,
+  };
+
   return (
-    <Stack.Navigator initialRouteName="UserAbout">
+    <Stack.Navigator 
+      initialRouteName="UserAbout"
+      screenOptions={commonScreenOptions}
+    >
       {authenticatedUser ? (
         <>
           {userRole === "Admin" ? (
@@ -37,8 +68,8 @@ const ScreenMenu = () => {
                 name="A_Home"
                 component={A_Home}
                 options={{
-                  title: "Admin Panel",
-                  headerRight: () => <HeaderMenu />,
+                  title: "Admin Dashboard",
+                  ...adminScreenOptions,
                 }}
               />
 
@@ -46,16 +77,16 @@ const ScreenMenu = () => {
                 name="A_Event"
                 component={A_Event}
                 options={{
-                  title: "Admin Create Event",
-                  headerRight: () => <HeaderMenu />,
+                  title: "Create Event",
+                  ...adminScreenOptions,
                 }}
               />
               <Stack.Screen
                 name="A_ManageEvent"
                 component={A_ManageEvent}
                 options={{
-                  title: "Admin Manage Event",
-                  headerRight: () => <HeaderMenu />,
+                  title: "Manage Events",
+                  ...adminScreenOptions,
                 }}
               />
 
@@ -63,16 +94,16 @@ const ScreenMenu = () => {
                 name="A_allVolenteer"
                 component={A_allVolenteer}
                 options={{
-                  title: "Admin All Volenteer",
-                  headerRight: () => <HeaderMenu />,
+                  title: "All Volunteers",
+                  ...adminScreenOptions,
                 }}
               />
               <Stack.Screen
                 name="A_CreateVolenteer"
                 component={A_CreateVolenteer}
                 options={{
-                  title: "Admin Create Volenteer",
-                  headerRight: () => <HeaderMenu />,
+                  title: "Create Volunteer",
+                  ...adminScreenOptions,
                 }}
               />
 
@@ -80,16 +111,16 @@ const ScreenMenu = () => {
                 name="A_Attendence"
                 component={A_Attendence}
                 options={{
-                  title: "Admin Manage Attendence",
-                  headerRight: () => <HeaderMenu />,
+                  title: "Manage Attendance",
+                  ...adminScreenOptions,
                 }}
               />
               <Stack.Screen
                 name="A_Account"
                 component={A_Account}
                 options={{
-                  title: "Admin Account",
-                  headerRight: () => <HeaderMenu />,
+                  title: "My Account",
+                  ...adminScreenOptions,
                 }}
               />
             </>
@@ -100,56 +131,56 @@ const ScreenMenu = () => {
                 name="Home"
                 component={Home}
                 options={{
-                  title: "Welcome",
-                  headerRight: () => <HeaderMenu />,
+                  title: "NSS Portal",
+                  ...volunteerScreenOptions,
                 }}
               />
               <Stack.Screen
                 name="Events"
                 component={AdminPost}
                 options={{
-                  title: "Admin Post",
-                  headerRight: () => <HeaderMenu />,
+                  title: "Events",
+                  ...volunteerScreenOptions,
                 }}
               />
               <Stack.Screen
                 name="Post"
                 component={Post}
                 options={{
-                  headerBackTitle: "Back",
-                  headerRight: () => <HeaderMenu />,
+                  title: "Create Post",
+                  ...volunteerScreenOptions,
                 }}
               />
               <Stack.Screen
                 name="About"
                 component={About}
                 options={{
-                  headerBackTitle: "Back",
-                  headerRight: () => <HeaderMenu />,
+                  title: "About NSS",
+                  ...volunteerScreenOptions,
                 }}
               />
               <Stack.Screen
                 name="Account"
                 component={Account}
                 options={{
-                  headerBackTitle: "Back",
-                  headerRight: () => <HeaderMenu />,
+                  title: "My Profile",
+                  ...volunteerScreenOptions,
                 }}
               />
               <Stack.Screen
                 name="AdminPost"
                 component={AdminPost}
                 options={{
-                  title: "Admin Post",
-                  headerRight: () => <HeaderMenu />,
+                  title: "Admin Updates",
+                  ...volunteerScreenOptions,
                 }}
               />
               <Stack.Screen
                 name="Myposts"
                 component={Myposts}
                 options={{
-                  headerBackTitle: "Back",
-                  headerRight: () => <HeaderMenu />,
+                  title: "My Posts",
+                  ...volunteerScreenOptions,
                 }}
               />
             </>

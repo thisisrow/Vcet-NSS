@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Alert, Dimensions } from "react-native";
+import { View, Text, StyleSheet, Alert, Dimensions, TouchableOpacity, Image } from "react-native";
 import React, { useState } from "react";
 import moment from "moment";
 import axios from "axios";
@@ -8,6 +8,14 @@ import EditModal from "./EditModal";
 
 const { width, height } = Dimensions.get("window"); // Get device dimensions
 
+// Theme colors
+const PRIMARY_COLOR = "#4361ee";
+const ACCENT_COLOR = "#3f37c9";
+const BACKGROUND_COLOR = "#ffffff";
+const TEXT_COLOR = "#333333";
+const LIGHT_TEXT_COLOR = "#6c757d";
+const BORDER_COLOR = "#e0e0e0";
+
 const PostCard = ({ posts, myPostScreen }) => {
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -15,16 +23,18 @@ const PostCard = ({ posts, myPostScreen }) => {
   const navigation = useNavigation();
 
   // handle delete prompt
-  const handleDeletePropmt = (id) => {
-    Alert.alert("Attention!", "Are You Sure Want to delete this post?", [
+  const handleDeletePrompt = (id) => {
+    Alert.alert("Delete Post", "Are you sure you want to delete this post?", [
       {
         text: "Cancel",
+        style: "cancel",
         onPress: () => {
           console.log("cancel press");
         },
       },
       {
         text: "Delete",
+        style: "destructive",
         onPress: () => handleDeletePost(id),
       },
     ]);
@@ -57,45 +67,47 @@ const PostCard = ({ posts, myPostScreen }) => {
       {posts?.map((post, i) => (
         <View style={styles.card} key={i}>
           {myPostScreen && (
-            <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
-              <Text style={{ marginHorizontal: 20 }}>
-                <FontAwesome5
-                  name="pen"
-                  size={16}
-                  color={"darkblue"}
-                  onPress={() => {
-                    setPost(post), setModalVisible(true);
-                  }}
-                />
-              </Text>
-              <Text>
-                <FontAwesome5
-                  name="trash"
-                  size={16}
-                  color={"red"}
-                  onPress={() => handleDeletePropmt(post?._id)}
-                />
-              </Text>
+            <View style={styles.actionContainer}>
+              <TouchableOpacity 
+                style={styles.actionButton}
+                onPress={() => {
+                  setPost(post);
+                  setModalVisible(true);
+                }}
+              >
+                <FontAwesome5 name="pen" size={16} color={PRIMARY_COLOR} />
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.actionButton}
+                onPress={() => handleDeletePrompt(post?._id)}
+              >
+                <FontAwesome5 name="trash" size={16} color="#dc3545" />
+              </TouchableOpacity>
             </View>
           )}
-          <Text style={styles.title}>Title : {post?.title}</Text>
-          <Text style={styles.desc}> {post?.description}</Text>
+          
+          <Text style={styles.title}>{post?.title}</Text>
+          <Text style={styles.desc}>{post?.description}</Text>
+          
+          <View style={styles.divider} />
+          
           <View style={styles.footer}>
-            <Text>
-              <FontAwesome5 name="user" color={"orange"} />{" "}
-              {post?.postedBy?.name}
-            </Text>
-            <Text>
-              {" "}
-              <FontAwesome5 name="clock" color={"orange"} />
-              {" Created "}
-              {moment(post?.createdAt).format("DD:MM:YYYY")}
-            </Text>
-            <Text>
-              <FontAwesome5 name="clock" color={"orange"} />
-              {" Updated "}
-              {moment(post?.updatedAt).format("DD:MM:YYYY")}
-            </Text>
+            <View style={styles.footerItem}>
+              <FontAwesome5 name="user" size={14} color={PRIMARY_COLOR} />
+              <Text style={styles.footerText}>{post?.postedBy?.name}</Text>
+            </View>
+            <View style={styles.footerItem}>
+              <FontAwesome5 name="calendar-plus" size={14} color={PRIMARY_COLOR} />
+              <Text style={styles.footerText}>
+                {moment(post?.createdAt).format("DD MMM YYYY")}
+              </Text>
+            </View>
+            <View style={styles.footerItem}>
+              <FontAwesome5 name="clock" size={14} color={PRIMARY_COLOR} />
+              <Text style={styles.footerText}>
+                {moment(post?.updatedAt).format("DD MMM YYYY")}
+              </Text>
+            </View>
           </View>
         </View>
       ))}
@@ -104,36 +116,62 @@ const PostCard = ({ posts, myPostScreen }) => {
 };
 
 const styles = StyleSheet.create({
-  heading: {
-    color: "green",
-    textAlign: "center",
-    fontSize: width * 0.05, // Dynamic font size based on screen width
-    marginBottom: height * 0.02, // Dynamic margin-bottom
-  },
   card: {
-    width: width * 0.97, // Dynamic width for card
-    backgroundColor: "#ffffff",
-    borderWidth: 0.2,
-    borderColor: "gray",
-    padding: width * 0.03, // Dynamic padding
-    borderRadius: 5,
-    marginVertical: height * 0.009, // Dynamic margin vertical
+    width: width * 0.95,
+    backgroundColor: BACKGROUND_COLOR,
+    borderRadius: 12,
+    padding: 16,
+    marginVertical: 10,
+    marginHorizontal: 10,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  actionContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    marginBottom: 10,
+  },
+  actionButton: {
+    padding: 8,
+    marginLeft: 10,
+    borderRadius: 20,
+    backgroundColor: "#f8f9fa",
   },
   title: {
-    fontWeight: "bold",
-    paddingBottom: 10,
-    borderBottomWidth: 0.3,
-    fontSize: width * 0.045, // Dynamic font size for title
+    fontSize: 18,
+    fontWeight: "700",
+    color: TEXT_COLOR,
+    marginBottom: 10,
   },
   desc: {
-    marginTop: height * 0.01, // Dynamic margin-top for description
-    fontSize: width * 0.04, // Dynamic font size for description
+    fontSize: 15,
+    color: TEXT_COLOR,
+    lineHeight: 22,
+    marginBottom: 15,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: BORDER_COLOR,
+    marginVertical: 10,
   },
   footer: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: height * 0.02, // Dynamic margin-top for footer
     flexWrap: "wrap",
+    justifyContent: "space-between",
+    marginTop: 5,
+  },
+  footerItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 5,
+  },
+  footerText: {
+    fontSize: 13,
+    color: LIGHT_TEXT_COLOR,
+    marginLeft: 5,
   },
 });
 

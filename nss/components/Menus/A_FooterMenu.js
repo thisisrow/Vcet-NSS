@@ -1,19 +1,23 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from "react-native";
 import React from "react";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
+import theme from "../theme";
 
-const FooterMenu = () => {
+const { width } = Dimensions.get("window");
+
+const A_FooterMenu = () => {
   // hooks
   const navigation = useNavigation();
   const route = useRoute();
 
+  // Menu items with icons and destinations
   const menuItems = [
-    { name: "A_Home", icon: "home", label: "Home" },
-    { name: "A_ManageEvent", icon: "plus-square", label: "Event" },
-    { name: "A_allVolenteer", icon: "user-plus", label: "Volunteer" },
-    { name: "A_Attendence", icon: "hand-paper", label: "Attendance" },
-    { name: "A_Account", icon: "user", label: "Account" },
+    { name: "A_Home", icon: "home", label: "Dashboard" },
+    { name: "A_ManageEvent", icon: "calendar-alt", label: "Events" },
+    { name: "A_allVolenteer", icon: "users", label: "Volunteers" },
+    { name: "A_Attendence", icon: "clipboard-check", label: "Attendance" },
+    { name: "A_Account", icon: "user-cog", label: "Account" },
   ];
 
   return (
@@ -22,15 +26,20 @@ const FooterMenu = () => {
         <TouchableOpacity
           key={item.name}
           onPress={() => navigation.navigate(item.name)}
-          style={styles.button}
+          style={styles.menuItem}
         >
           <FontAwesome5
             name={item.icon}
-            style={styles.iconStyle}
-            color={route.name === item.name ? "orange" : "black"}
+            style={[
+              styles.iconStyle,
+              { color: route.name === item.name ? theme.colors.secondary : theme.colors.mediumGray }
+            ]}
           />
           <Text
-            style={[styles.font, route.name === item.name && styles.activeText]}
+            style={[
+              styles.iconText,
+              { color: route.name === item.name ? theme.colors.secondary : theme.colors.mediumGray }
+            ]}
           >
             {item.label}
           </Text>
@@ -43,26 +52,33 @@ const FooterMenu = () => {
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-    justifyContent: "space-around",
-    backgroundColor: "#f8f9fa",
-    paddingVertical: 10,
+    backgroundColor: theme.colors.white,
     borderTopWidth: 1,
-    borderTopColor: "#e0e0e0",
-  },
-  button: {
+    borderTopColor: theme.colors.border,
+    paddingVertical: 10,
+    paddingHorizontal: 5,
+    justifyContent: "space-between",
     alignItems: "center",
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  menuItem: {
+    flex: 1,
+    alignItems: "center",
+    paddingVertical: 5,
   },
   iconStyle: {
-    fontSize: 24,
+    fontSize: 22,
+    marginBottom: 3,
+    alignSelf: "center",
   },
-  font: {
-    fontSize: 14,
-    color: "black",
-  },
-  activeText: {
-    fontWeight: "bold",
-    color: "orange",
-  },
+  iconText: {
+    fontSize: 12,
+    fontWeight: "500",
+  }
 });
 
-export default FooterMenu;
+export default A_FooterMenu;
