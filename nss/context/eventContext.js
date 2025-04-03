@@ -13,7 +13,7 @@ const EventProvider = ({ children }) => {
   const fetchEvents = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get("/events/all");
+      const { data } = await axios.get("/api/v1/events/all");
       setEvents(data?.events || []);
       setLoading(false);
      

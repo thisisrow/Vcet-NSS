@@ -26,7 +26,7 @@ const A_Event = () => {
     }
     try {
       const { data } = await axios.post(
-        "/events/create",
+        "/api/v1/events/create",
         eventDetails
       );
       Alert.alert("Success", data.message);

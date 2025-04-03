@@ -19,7 +19,7 @@ const A_allVolunteer = () => {
   // Fetch users from the API
   const fetchUsers = async () => {
     try {
-      const response = await axios.get(`/auth/all-users`); // Fetch all users
+      const response = await axios.get(`/api/v1/auth/all-users`); // Fetch all users
       const data = response.data; // Access the data from the response
       setUsers(Array.isArray(data.users) ? data.users : []);
     } catch (error) {

@@ -39,7 +39,7 @@ const A_Account = () => {
   const handleUpdate = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.put("/auth/update-user", {
+      const { data } = await axios.put("/api/v1/auth/update-user", {
         name,
         password,
         email: user?.email,

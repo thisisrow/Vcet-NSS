@@ -23,7 +23,7 @@ const onRefresh = async () => {
 const getAllPosts = async () => {
   setLoading(true);
   try {
-    const { data } = await axios.get("/post/get-all-post");
+    const { data } = await axios.get("/api/v1/post/get-all-post");
     setPosts(data?.posts || []); // Set posts to an empty array if undefined
   } catch (error) {
     console.log("Error fetching posts:", error);

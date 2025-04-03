@@ -13,7 +13,7 @@ const Myposts = () => {
   const getUserPosts = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get("/post/get-user-post");
+      const { data } = await axios.get("/api/v1/post/get-user-post");
       setLoading(false);
       setPosts(data?.userPosts);
     } catch (error) {

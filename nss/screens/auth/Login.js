@@ -24,7 +24,7 @@ const Login = ({ navigation }) => {
         setLoading(false);
         return;
       }
-      const { data } = await axios.post("/auth/login", { email, password });
+      const { data } = await axios.post("/api/v1/auth/login", { email, password });
 
       if (data.success) {
         setState({

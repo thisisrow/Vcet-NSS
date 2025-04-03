@@ -21,7 +21,7 @@ const A_Attendance = () => {
   // Fetch volunteers (users)
   const fetchUsers = async () => {
     try {
-      const response = await axios.get(`/auth/all-users`); // Fetch all users
+      const response = await axios.get(`/api/v1/auth/all-users`); // Fetch all users
       const data = response.data; // Access the data from the response
       setVolunteers(Array.isArray(data.users) ? data.users : []);
     } catch (error) {
@@ -67,7 +67,7 @@ const A_Attendance = () => {
     }
     try {
       const eventToday = todaysEvents[0]; //Assuming only one event for today
-      const response = await axios.put("/present/markattendance", {
+      const response = await axios.put("/api/v1/present/markattendance", {
         selectedVolunteers,
         eventName: eventToday.eventName,
         eventHours: eventToday.duration, //Assuming event's duration in hours is stored in eventToday

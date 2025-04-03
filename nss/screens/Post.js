@@ -30,7 +30,7 @@ const Post = ({ navigation }) => {
       if (!description) {
         alert("Please add post  description");
       }
-      const { data } = await axios.post("/post/create-post", {
+      const { data } = await axios.post("/api/v1/post/create-post", {
         title,
         description,
       });

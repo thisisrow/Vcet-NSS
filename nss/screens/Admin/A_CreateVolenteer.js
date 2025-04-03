@@ -33,7 +33,7 @@ const A_CreateVolenteer = ({ navigation }) => {
       }
 
       // Sending registration details to backend
-      const { data } = await axios.post("/auth/register", {
+      const { data } = await axios.post("/api/v1/auth/register", {
         name,
         email,
         password,

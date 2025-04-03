@@ -21,7 +21,7 @@ const EditModal = ({ modalVisible, setModalVisible, post }) => {
   const updatePostHandler = async (id) => {
     try {
       setLoading(true);
-      const { data } = await axios.put(`/post/update-post/${id}`, {
+      const { data } = await axios.put(`/api/v1/post/update-post/${id}`, {
         title,
         description,
       });
