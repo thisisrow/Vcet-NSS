@@ -27,7 +27,7 @@ const AuthProvider = ({ children }) => {
 
   //default axios setting
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-  axios.defaults.baseURL = "https://post-server-owes.onrender.com";
+  axios.defaults.baseURL = "https://vcet-nss.onrender.com";
 
   return (
     <AuthContext.Provider value={[state, setState]}>
