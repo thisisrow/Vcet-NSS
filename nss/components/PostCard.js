@@ -1,10 +1,11 @@
-import { View, Text, StyleSheet, Alert, Dimensions, TouchableOpacity, Image, Linking } from "react-native";
+import { View, Text, StyleSheet, Alert, Dimensions, TouchableOpacity, Image, Linking, Platform } from "react-native";
 import React, { useState } from "react";
 import moment from "moment";
 import axios from "axios";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { useNavigation } from "@react-navigation/native";
 import EditModal from "./EditModal";
+import { Video } from "expo-av";
 
 const { width, height } = Dimensions.get("window"); // Get device dimensions
 
@@ -63,24 +64,82 @@ const PostCard = ({ posts, myPostScreen }) => {
     }
   };
 
-  // Get file extension from URL
-  const getFileExtension = (url) => {
-    if (!url) return '';
-    return url.split('.').pop().toLowerCase();
+  // Get file type from documentType or URL
+  const getFileType = (url, documentType) => {
+    if (documentType) {
+      if (documentType.startsWith('image/')) return 'image';
+      if (documentType.startsWith('video/')) return 'video';
+      if (documentType === 'application/pdf') return 'pdf';
+      return 'file';
+    }
+    
+    // Fallback to URL extension if documentType not available
+    if (!url) return 'file';
+    const extension = url.split('.').pop().toLowerCase();
+    
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension)) return 'image';
+    if (['mp4', 'mov', 'avi', 'wmv'].includes(extension)) return 'video';
+    if (extension === 'pdf') return 'pdf';
+    return 'file';
   };
 
-  // Get document icon based on extension
-  const getDocumentIcon = (url) => {
-    const extension = getFileExtension(url);
+  // Get document icon based on file type
+  const getDocumentIcon = (fileType) => {
+    switch (fileType) {
+      case 'image': return 'file-image';
+      case 'video': return 'file-video';
+      case 'pdf': return 'file-pdf';
+      default: return 'file-alt';
+    }
+  };
+
+  // Get document label based on file type
+  const getDocumentLabel = (fileType) => {
+    switch (fileType) {
+      case 'image': return 'View Image';
+      case 'video': return 'Watch Video';
+      case 'pdf': return 'Open PDF';
+      default: return 'View Attachment';
+    }
+  };
+
+  // Render media preview based on file type
+  const renderMediaPreview = (post) => {
+    if (!post.document) return null;
     
-    if (['jpg', 'jpeg', 'png', 'gif'].includes(extension)) {
-      return 'file-image';
-    } else if (['pdf'].includes(extension)) {
-      return 'file-pdf';
-    } else if (['doc', 'docx'].includes(extension)) {
-      return 'file-word';
-    } else {
-      return 'file-alt';
+    const fileType = getFileType(post.document, post.documentType);
+    
+    switch (fileType) {
+      case 'image':
+        return (
+          <Image 
+            source={{ uri: post.document }} 
+            style={styles.mediaPreview}
+            resizeMode="cover"
+          />
+        );
+      case 'video':
+        return (
+          <Video
+            source={{ uri: post.document }}
+            rate={1.0}
+            volume={1.0}
+            isMuted={true}
+            resizeMode="cover"
+            shouldPlay={false}
+            useNativeControls
+            style={styles.mediaPreview}
+          />
+        );
+      case 'pdf':
+        return (
+          <View style={styles.pdfPreview}>
+            <FontAwesome5 name="file-pdf" size={40} color={PRIMARY_COLOR} />
+            <Text style={styles.pdfText}>PDF Document</Text>
+          </View>
+        );
+      default:
+        return null;
     }
   };
 
@@ -119,17 +178,23 @@ const PostCard = ({ posts, myPostScreen }) => {
           <Text style={styles.desc}>{post?.description}</Text>
           
           {post?.document && (
-            <TouchableOpacity 
-              style={styles.documentContainer}
-              onPress={() => openDocument(post.document)}
-            >
-              <FontAwesome5 
-                name={getDocumentIcon(post.document)} 
-                size={20} 
-                color={PRIMARY_COLOR} 
-              />
-              <Text style={styles.documentText}>View Attachment</Text>
-            </TouchableOpacity>
+            <View style={styles.documentWrapper}>
+              {renderMediaPreview(post)}
+              
+              <TouchableOpacity 
+                style={styles.documentContainer}
+                onPress={() => openDocument(post.document)}
+              >
+                <FontAwesome5 
+                  name={getDocumentIcon(getFileType(post.document, post.documentType))} 
+                  size={20} 
+                  color={PRIMARY_COLOR} 
+                />
+                <Text style={styles.documentText}>
+                  {getDocumentLabel(getFileType(post.document, post.documentType))}
+                </Text>
+              </TouchableOpacity>
+            </View>
           )}
           
           <View style={styles.divider} />
@@ -195,13 +260,36 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginBottom: 15,
   },
+  documentWrapper: {
+    marginBottom: 15,
+  },
+  mediaPreview: {
+    width: '100%',
+    height: 200,
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  pdfPreview: {
+    width: '100%',
+    height: 120,
+    backgroundColor: '#f8f9fa',
+    borderRadius: 8,
+    marginBottom: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  pdfText: {
+    marginTop: 10,
+    fontSize: 14,
+    color: PRIMARY_COLOR,
+    fontWeight: '500',
+  },
   documentContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#f8f9fa',
     padding: 12,
     borderRadius: 8,
-    marginBottom: 15,
   },
   documentText: {
     marginLeft: 10,

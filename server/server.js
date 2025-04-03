@@ -22,6 +22,13 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
 
+// Increase payload size limit for file uploads
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// Increase timeout for large file uploads
+app.timeout = 120000; // 2 minutes
+
 //ROUTES
 app.get("/", (req, res) => {
   res.send("Hello World");

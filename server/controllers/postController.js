@@ -2,6 +2,14 @@ const postModel = require("../models/postModel");
 const cloudinary = require("../config/cloudinary");
 const fs = require("fs");
 
+// Determine resource type based on file mimetype
+const getResourceType = (mimetype) => {
+  if (mimetype.startsWith('image/')) return 'image';
+  if (mimetype.startsWith('video/')) return 'video';
+  if (mimetype === 'application/pdf') return 'raw';
+  return 'auto';
+};
+
 // create post
 const createPostController = async (req, res) => {
   try {
@@ -15,16 +23,29 @@ const createPostController = async (req, res) => {
     }
 
     let documentUrl = "";
+    let documentType = "";
     
     // Upload document to cloudinary if exists
     if (req.file) {
       try {
-        // Upload to Cloudinary
-        const result = await cloudinary.uploader.upload(req.file.path, {
+        // Determine resource type based on mimetype
+        const resourceType = getResourceType(req.file.mimetype);
+        
+        // Upload to Cloudinary with appropriate resource type
+        const uploadOptions = {
           folder: "nss_documents",
-        });
+          resource_type: resourceType
+        };
+        
+        // For PDFs, we need special handling
+        if (resourceType === 'raw') {
+          uploadOptions.format = 'pdf';
+        }
+        
+        const result = await cloudinary.uploader.upload(req.file.path, uploadOptions);
         
         documentUrl = result.secure_url;
+        documentType = req.file.mimetype;
         
         // Remove file from local storage after upload
         fs.unlinkSync(req.file.path);
@@ -42,6 +63,7 @@ const createPostController = async (req, res) => {
       title,
       description,
       document: documentUrl,
+      documentType: documentType,
       postedBy: req.auth._id,
     }).save();
     
@@ -112,7 +134,18 @@ const deletePostController = async (req, res) => {
       try {
         // Extract public_id from the URL
         const publicId = post.document.split('/').pop().split('.')[0];
-        await cloudinary.uploader.destroy(`nss_documents/${publicId}`);
+        
+        // Determine resource type based on documentType
+        let resourceType = 'image';
+        if (post.documentType && post.documentType.startsWith('video/')) {
+          resourceType = 'video';
+        } else if (post.documentType === 'application/pdf') {
+          resourceType = 'raw';
+        }
+        
+        await cloudinary.uploader.destroy(`nss_documents/${publicId}`, {
+          resource_type: resourceType
+        });
       } catch (error) {
         console.log("Error deleting from cloudinary:", error);
       }
@@ -149,6 +182,7 @@ const updatePostController = async (req, res) => {
     }
     
     let documentUrl = post.document;
+    let documentType = post.documentType;
     
     // Update document if new one is uploaded
     if (req.file) {
@@ -158,18 +192,41 @@ const updatePostController = async (req, res) => {
           try {
             // Extract public_id from the URL
             const publicId = post.document.split('/').pop().split('.')[0];
-            await cloudinary.uploader.destroy(`nss_documents/${publicId}`);
+            
+            // Determine old resource type based on documentType
+            let resourceType = 'image';
+            if (post.documentType && post.documentType.startsWith('video/')) {
+              resourceType = 'video';
+            } else if (post.documentType === 'application/pdf') {
+              resourceType = 'raw';
+            }
+            
+            await cloudinary.uploader.destroy(`nss_documents/${publicId}`, {
+              resource_type: resourceType
+            });
           } catch (err) {
             console.log("Error deleting old document:", err);
           }
         }
         
+        // Determine resource type for new file
+        const resourceType = getResourceType(req.file.mimetype);
+        
         // Upload new document
-        const result = await cloudinary.uploader.upload(req.file.path, {
+        const uploadOptions = {
           folder: "nss_documents",
-        });
+          resource_type: resourceType
+        };
+        
+        // For PDFs, we need special handling
+        if (resourceType === 'raw') {
+          uploadOptions.format = 'pdf';
+        }
+        
+        const result = await cloudinary.uploader.upload(req.file.path, uploadOptions);
         
         documentUrl = result.secure_url;
+        documentType = req.file.mimetype;
         
         // Remove file from local storage after upload
         fs.unlinkSync(req.file.path);
@@ -188,7 +245,8 @@ const updatePostController = async (req, res) => {
       {
         title: title || post?.title,
         description: description || post?.description,
-        document: documentUrl
+        document: documentUrl,
+        documentType: documentType
       },
       { new: true }
     );
