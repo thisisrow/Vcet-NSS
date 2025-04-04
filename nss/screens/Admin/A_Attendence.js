@@ -102,14 +102,43 @@ const A_Attendance = () => {
         eventName: eventToday.eventName,
         eventHours: eventToday.duration,
       });
+
+      const { success, message, alreadyMarkedVolunteers } = response.data;
+
+      if (success) {
+        // Some or all volunteers were marked successfully
+        Alert.alert(
+          "Success",
+          message,
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                setSelectedVolunteers([]);
+                fetchUsers(); // Refresh the volunteers list
+              }
+            }
+          ]
+        );
+      } else {
+        // No new volunteers were marked
+        Alert.alert("Info", message);
+      }
+
       setSubmitting(false);
-      Alert.alert("Success", "Attendance marked successfully!");
-      setSelectedVolunteers([]);
     } catch (error) {
       setSubmitting(false);
       console.error("Error marking attendance:", error);
       Alert.alert("Error", error.response?.data?.message || "Failed to mark attendance.");
     }
+  };
+
+  // Add a function to check if a volunteer has already attended today's event
+  const hasAttendedTodayEvent = (volunteer) => {
+    const todaysEvents = getTodayEvents();
+    if (todaysEvents.length === 0) return false;
+    
+    return volunteer.eventsAttended?.includes(todaysEvents[0].eventName) || false;
   };
 
   const todaysEvents = getTodayEvents();
@@ -202,9 +231,19 @@ const A_Attendance = () => {
                 key={index}
                 style={[
                   styles.volunteerCard,
-                  selectedVolunteers.includes(volunteer._id) && styles.selectedVolunteer
+                  selectedVolunteers.includes(volunteer._id) && styles.selectedVolunteer,
+                  hasAttendedTodayEvent(volunteer) && styles.alreadyAttendedVolunteer
                 ]}
-                onPress={() => toggleVolunteerSelection(volunteer._id)}
+                onPress={() => {
+                  if (hasAttendedTodayEvent(volunteer)) {
+                    Alert.alert(
+                      "Already Attended",
+                      `${volunteer.name} has already attended this event.`
+                    );
+                  } else {
+                    toggleVolunteerSelection(volunteer._id);
+                  }
+                }}
               >
                 <View style={styles.volunteerInfo}>
                   <View style={styles.volunteerAvatar}>
@@ -214,14 +253,23 @@ const A_Attendance = () => {
                   </View>
                   <View style={styles.volunteerDetails}>
                     <Text style={styles.volunteerName}>{volunteer.name}</Text>
-                    <Text style={styles.volunteerTeam}>{volunteer.team || "No Team"}</Text>
+                    <View style={styles.volunteerMetaInfo}>
+                      <Text style={styles.volunteerTeam}>{volunteer.team || "No Team"}</Text>
+                      {hasAttendedTodayEvent(volunteer) && (
+                        <View style={styles.attendedBadge}>
+                          <FontAwesome5 name="check-circle" size={12} color={theme.colors.success} />
+                          <Text style={styles.attendedText}>Attended</Text>
+                        </View>
+                      )}
+                    </View>
                   </View>
                 </View>
                 
                 <View style={styles.checkboxContainer}>
                   <View style={[
                     styles.checkbox,
-                    selectedVolunteers.includes(volunteer._id) && styles.checkboxSelected
+                    selectedVolunteers.includes(volunteer._id) && styles.checkboxSelected,
+                    hasAttendedTodayEvent(volunteer) && styles.checkboxDisabled
                   ]}>
                     {selectedVolunteers.includes(volunteer._id) && (
                       <FontAwesome5 name="check" size={12} color={theme.colors.white} />
@@ -478,6 +526,33 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: theme.colors.white,
+  },
+  alreadyAttendedVolunteer: {
+    backgroundColor: "rgba(0, 128, 0, 0.05)",
+    opacity: 0.8,
+  },
+  volunteerMetaInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  attendedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: "rgba(0, 128, 0, 0.1)",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 8,
+    gap: 4,
+  },
+  attendedText: {
+    fontSize: 12,
+    color: theme.colors.success,
+    fontWeight: '500',
+  },
+  checkboxDisabled: {
+    backgroundColor: theme.colors.ultraLightGray,
+    borderColor: theme.colors.lightGray,
   },
 });
 
