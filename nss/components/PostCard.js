@@ -225,7 +225,7 @@ const PostCard = ({ posts, myPostScreen }) => {
 
 const styles = StyleSheet.create({
   card: {
-    width: width * 0.95,
+    width: width * 0.9,
     backgroundColor: BACKGROUND_COLOR,
     borderRadius: 12,
     padding: 16,
