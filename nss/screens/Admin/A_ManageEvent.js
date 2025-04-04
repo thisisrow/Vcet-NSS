@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   Dimensions,
   Alert,
+  Modal,
 } from "react-native";
 import A_FooterMenu from "../../components/Menus/A_FooterMenu";
 import { useNavigation } from "@react-navigation/native";
@@ -22,6 +23,8 @@ const A_ManageEvent = () => {
   const navigation = useNavigation();
   const { events, loading, fetchEvents } = useContext(EventContext);
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [showEventModal, setShowEventModal] = useState(false);
   
   const onRefresh = async () => {
     setRefreshing(true);
@@ -43,11 +46,95 @@ const A_ManageEvent = () => {
   // Format date for display
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    const options = { weekday: 'short', month: 'short', day: 'numeric' };
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     return date.toLocaleDateString('en-US', options);
+  };
+
+  // Handle event click
+  const handleEventClick = (event) => {
+    setSelectedEvent(event);
+    setShowEventModal(true);
   };
   
   const todaysEvents = getTodayEvents();
+
+  // Render event details modal
+  const renderEventModal = () => {
+    if (!selectedEvent) return null;
+
+    return (
+      <Modal
+        visible={showEventModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowEventModal(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Event Details</Text>
+              <TouchableOpacity 
+                style={styles.closeButton}
+                onPress={() => setShowEventModal(false)}
+              >
+                <FontAwesome5 name="times" size={20} color={theme.colors.darkGray} />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={styles.modalBody}>
+              <View style={styles.detailSection}>
+                <View style={styles.detailRow}>
+                  <FontAwesome5 name="calendar-day" size={16} color={theme.colors.primary} />
+                  <Text style={styles.detailLabel}>Event Name:</Text>
+                  <Text style={styles.detailValue}>{selectedEvent.eventName}</Text>
+                </View>
+
+                <View style={styles.detailRow}>
+                  <FontAwesome5 name="calendar" size={16} color={theme.colors.primary} />
+                  <Text style={styles.detailLabel}>Date:</Text>
+                  <Text style={styles.detailValue}>{formatDate(selectedEvent.date)}</Text>
+                </View>
+
+                <View style={styles.detailRow}>
+                  <FontAwesome5 name="clock" size={16} color={theme.colors.primary} />
+                  <Text style={styles.detailLabel}>Duration:</Text>
+                  <Text style={styles.detailValue}>{selectedEvent.duration} hours</Text>
+                </View>
+
+                {selectedEvent.location && (
+                  <View style={styles.detailRow}>
+                    <FontAwesome5 name="map-marker-alt" size={16} color={theme.colors.primary} />
+                    <Text style={styles.detailLabel}>Location:</Text>
+                    <Text style={styles.detailValue}>{selectedEvent.location}</Text>
+                  </View>
+                )}
+
+                <View style={styles.descriptionSection}>
+                  <Text style={styles.descriptionLabel}>
+                    <FontAwesome5 name="file-alt" size={16} color={theme.colors.primary} /> Description:
+                  </Text>
+                  <Text style={styles.descriptionText}>{selectedEvent.description}</Text>
+                </View>
+              </View>
+            </ScrollView>
+
+            <View style={styles.modalFooter}>
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.editButton]}
+                onPress={() => {
+                  setShowEventModal(false);
+                  // Add edit functionality here
+                }}
+              >
+                <FontAwesome5 name="edit" size={16} color={theme.colors.white} />
+                <Text style={styles.buttonText}>Edit Event</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    );
+  };
   
   return (
     <View style={styles.container}>
@@ -87,7 +174,11 @@ const A_ManageEvent = () => {
             </View>
           ) : (
             todaysEvents.map((event, index) => (
-              <View key={index} style={styles.todayEventCard}>
+              <TouchableOpacity
+                key={index}
+                style={styles.todayEventCard}
+                onPress={() => handleEventClick(event)}
+              >
                 <View style={styles.eventCardHeader}>
                   <View style={styles.eventDateBadge}>
                     <Text style={styles.eventDateDay}>{new Date(event.date).getDate()}</Text>
@@ -112,7 +203,7 @@ const A_ManageEvent = () => {
                     </View>
                   </View>
                 </View>
-              </View>
+              </TouchableOpacity>
             ))
           )}
         </View>
@@ -173,6 +264,8 @@ const A_ManageEvent = () => {
         
         <View style={styles.bottomPadding} />
       </ScrollView>
+      
+      {renderEventModal()}
       
       <View style={styles.fabContainer}>
         <TouchableOpacity 
@@ -391,6 +484,94 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: theme.colors.white,
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: theme.colors.white,
+    borderRadius: 20,
+    maxHeight: height * 0.8,
+    width: '100%',
+    ...theme.shadows.medium,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: theme.colors.black,
+  },
+  closeButton: {
+    padding: 5,
+  },
+  modalBody: {
+    padding: 20,
+  },
+  detailSection: {
+    marginBottom: 20,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  detailLabel: {
+    fontSize: 16,
+    color: theme.colors.darkGray,
+    marginLeft: 10,
+    marginRight: 5,
+    fontWeight: '500',
+  },
+  detailValue: {
+    flex: 1,
+    fontSize: 16,
+    color: theme.colors.black,
+  },
+  descriptionSection: {
+    marginTop: 10,
+  },
+  descriptionLabel: {
+    fontSize: 16,
+    color: theme.colors.darkGray,
+    fontWeight: '500',
+    marginBottom: 10,
+  },
+  descriptionText: {
+    fontSize: 16,
+    color: theme.colors.black,
+    lineHeight: 24,
+  },
+  modalFooter: {
+    padding: 20,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border,
+  },
+  modalButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 15,
+    borderRadius: 12,
+    ...theme.shadows.small,
+  },
+  editButton: {
+    backgroundColor: theme.colors.primary,
+  },
+  buttonText: {
+    color: theme.colors.white,
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8,
   },
 });
 

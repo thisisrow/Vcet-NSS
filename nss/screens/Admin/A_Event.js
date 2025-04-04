@@ -10,6 +10,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Modal,
   Dimensions 
 } from "react-native";
 import axios from "axios";
@@ -23,42 +24,46 @@ const A_Event = ({ navigation }) => {
   const [eventDetails, setEventDetails] = useState({
     eventName: "",
     description: "",
-    date: "",
+    date: new Date().toISOString().split('T')[0],
     duration: "",
     location: "",
-    time: ""
   });
   const [loading, setLoading] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const handleChange = (name, value) => {
     setEventDetails({ ...eventDetails, [name]: value });
   };
 
-  const handleSubmit = async () => {
-    // Validate required fields
-    if (
-      !eventDetails.eventName ||
-      !eventDetails.description ||
-      !eventDetails.date ||
-      !eventDetails.duration
-    ) {
-      Alert.alert("Error", "Please fill in all required fields");
-      return;
-    }
+  const handleDateChange = (selectedDate) => {
+    const currentDate = selectedDate || new Date();
+    const formattedDate = currentDate.toISOString().split('T')[0];
+    handleChange('date', formattedDate);
+    setShowDatePicker(false);
+  };
 
-    // Validate date format (YYYY-MM-DD)
-    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-    if (!dateRegex.test(eventDetails.date)) {
-      Alert.alert("Error", "Please enter date in YYYY-MM-DD format");
+  const showDatePickerModal = () => {
+    setShowDatePicker(true);
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  const handleSubmit = async () => {
+    if (!eventDetails.eventName || !eventDetails.description || !eventDetails.date || !eventDetails.duration) {
+      Alert.alert("Error", "Please fill in all required fields");
       return;
     }
 
     try {
       setLoading(true);
-      const { data } = await axios.post(
-        "/api/v1/events/create",
-        eventDetails
-      );
+      const { data } = await axios.post("/api/v1/events/create", eventDetails);
       setLoading(false);
       Alert.alert("Success", data.message || "Event created successfully");
       resetForm();
@@ -74,11 +79,59 @@ const A_Event = ({ navigation }) => {
     setEventDetails({ 
       eventName: "", 
       description: "", 
-      date: "", 
+      date: new Date().toISOString().split('T')[0],
       duration: "",
       location: "",
-      time: ""
     });
+  };
+
+  const renderDatePicker = () => {
+    if (Platform.OS === 'android') {
+      if (showDatePicker) {
+        return (
+          <View style={styles.datePickerContainer}>
+            <TouchableOpacity
+              style={styles.dateOption}
+              onPress={() => {
+                const today = new Date();
+                handleDateChange(today);
+              }}
+            >
+              <Text style={styles.dateOptionText}>Today</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.dateOption}
+              onPress={() => {
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                handleDateChange(tomorrow);
+              }}
+            >
+              <Text style={styles.dateOptionText}>Tomorrow</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.dateOption}
+              onPress={() => {
+                const nextWeek = new Date();
+                nextWeek.setDate(nextWeek.getDate() + 7);
+                handleDateChange(nextWeek);
+              }}
+            >
+              <Text style={styles.dateOptionText}>Next Week</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.dateOption, styles.cancelOption]}
+              onPress={() => setShowDatePicker(false)}
+            >
+              <Text style={[styles.dateOptionText, styles.cancelText]}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        );
+      }
+      return null;
+    }
+
+    return null;
   };
 
   return (
@@ -134,46 +187,42 @@ const A_Event = ({ navigation }) => {
             <Text style={styles.inputLabel}>
               Date <Text style={styles.required}>*</Text>
             </Text>
-            <View style={styles.inputContainer}>
+            <TouchableOpacity 
+              style={styles.inputContainer}
+              onPress={showDatePickerModal}
+            >
               <FontAwesome5 name="calendar-alt" size={16} color={theme.colors.mediumGray} style={styles.inputIcon} />
+              <Text style={[styles.input, eventDetails.date ? {} : styles.placeholderText]}>
+                {eventDetails.date ? formatDate(eventDetails.date) : "Select date"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <Modal
+            visible={showDatePicker}
+            transparent={true}
+            animationType="slide"
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                {renderDatePicker()}
+              </View>
+            </View>
+          </Modal>
+          
+          <View style={styles.inputGroup}>
+            <Text style={styles.inputLabel}>
+              Duration <Text style={styles.required}>*</Text>
+            </Text>
+            <View style={styles.inputContainer}>
+              <FontAwesome5 name="clock" size={16} color={theme.colors.mediumGray} style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
-                placeholder="YYYY-MM-DD"
-                value={eventDetails.date}
-                onChangeText={(value) => handleChange("date", value)}
+                placeholder="Hours"
+                value={eventDetails.duration}
+                onChangeText={(value) => handleChange("duration", value)}
+                keyboardType="numeric"
               />
-            </View>
-            <Text style={styles.helperText}>Format: YYYY-MM-DD (e.g., 2024-05-20)</Text>
-          </View>
-          
-          <View style={styles.row}>
-            <View style={[styles.inputGroup, { flex: 1, marginRight: 8 }]}>
-              <Text style={styles.inputLabel}>
-                Duration <Text style={styles.required}>*</Text>
-              </Text>
-              <View style={styles.inputContainer}>
-                <FontAwesome5 name="clock" size={16} color={theme.colors.mediumGray} style={styles.inputIcon} />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Hours"
-                  value={eventDetails.duration}
-                  onChangeText={(value) => handleChange("duration", value)}
-                  keyboardType="numeric"
-                />
-              </View>
-            </View>
-            
-            <View style={[styles.inputGroup, { flex: 1, marginLeft: 8 }]}>
-              <Text style={styles.inputLabel}>Time</Text>
-              <View style={styles.inputContainer}>
-                <FontAwesome5 name="hourglass-half" size={16} color={theme.colors.mediumGray} style={styles.inputIcon} />
-                <TextInput
-                  style={styles.input}
-                  placeholder="e.g., 10:00 AM"
-                  value={eventDetails.time}
-                  onChangeText={(value) => handleChange("time", value)}
-                />
-              </View>
             </View>
           </View>
           
@@ -192,10 +241,7 @@ const A_Event = ({ navigation }) => {
           
           <View style={styles.buttonContainer}>
             <TouchableOpacity 
-              style={[
-                styles.button, 
-                styles.resetButton
-              ]}
+              style={[styles.button, styles.resetButton]}
               onPress={resetForm}
             >
               <Text style={styles.resetButtonText}>Reset</Text>
@@ -205,10 +251,10 @@ const A_Event = ({ navigation }) => {
               style={[
                 styles.button, 
                 styles.submitButton,
-                loading && styles.buttonDisabled
+                (loading || showDatePicker) && styles.buttonDisabled
               ]}
               onPress={handleSubmit}
-              disabled={loading}
+              disabled={loading || showDatePicker}
             >
               <Text style={styles.submitButtonText}>
                 {loading ? "Creating..." : "Create Event"}
@@ -263,10 +309,6 @@ const styles = StyleSheet.create({
   inputGroup: {
     marginBottom: 16,
   },
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
   inputLabel: {
     fontSize: 14,
     fontWeight: "600",
@@ -302,11 +344,40 @@ const styles = StyleSheet.create({
   textArea: {
     height: 100,
   },
-  helperText: {
-    fontSize: 12,
+  placeholderText: {
     color: theme.colors.mediumGray,
-    marginTop: 4,
-    marginLeft: 4,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: theme.colors.white,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 16,
+    ...theme.shadows.medium,
+  },
+  datePickerContainer: {
+    backgroundColor: theme.colors.white,
+  },
+  dateOption: {
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
+  },
+  dateOptionText: {
+    fontSize: 16,
+    color: theme.colors.primary,
+    textAlign: 'center',
+  },
+  cancelOption: {
+    borderBottomWidth: 0,
+  },
+  cancelText: {
+    color: theme.colors.danger,
   },
   buttonContainer: {
     flexDirection: "row",
