@@ -52,26 +52,6 @@ const A_Home = () => {
         </Text>
       </View>
       
-      <View style={styles.statsContainer}>
-        <View style={styles.statCard}>
-          <FontAwesome5 name="users" size={24} color={theme.colors.primary} />
-          <Text style={styles.statNumber}>{state?.stats?.volunteers || "12"}</Text>
-          <Text style={styles.statLabel}>Volunteers</Text>
-        </View>
-        
-        <View style={styles.statCard}>
-          <FontAwesome5 name="calendar-check" size={24} color={theme.colors.primary} />
-          <Text style={styles.statNumber}>{state?.stats?.events || "3"}</Text>
-          <Text style={styles.statLabel}>Events</Text>
-        </View>
-        
-        <View style={styles.statCard}>
-          <FontAwesome5 name="clipboard-list" size={24} color={theme.colors.primary} />
-          <Text style={styles.statNumber}>{posts?.length || "0"}</Text>
-          <Text style={styles.statLabel}>Posts</Text>
-        </View>
-      </View>
-      
       <View style={styles.content}>
         <Text style={styles.sectionTitle}>Recent Posts</Text>
         
